@@ -15,7 +15,7 @@ final class TrackerSectionHeaderView: UICollectionReusableView {
     
     private func setupUI() {
         titleLabel.font = .systemFont(ofSize: 19, weight: .bold)
-        titleLabel.textColor = .blackYP
+        titleLabel.textColor = .black
         
         addSubview(titleLabel)
         titleLabel.translatesAutoresizingMaskIntoConstraints = false

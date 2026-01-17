@@ -25,7 +25,7 @@ final class TabBarController: UITabBarController {
         
         // Линия-разделитель сверху (согласно макету)
         tabBar.layer.shadowOffset = CGSize(width: 0, height: -0.5)
-        tabBar.layer.shadowColor = UIColor.grayStatic.cgColor
+        tabBar.layer.shadowColor = UIColor.separator.cgColor
         tabBar.layer.shadowOpacity = 1
         
         viewControllers = [trackersNav, statsVC]

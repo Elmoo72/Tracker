@@ -18,7 +18,7 @@ final class CreateHabitViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .whiteYP
+        view.backgroundColor = .white
         setupUI()
     }
     
@@ -26,7 +26,7 @@ final class CreateHabitViewController: UIViewController {
         navigationItem.title = "Новая привычка"
         
         nameTextField.placeholder = "Введите название трекера"
-        nameTextField.backgroundColor = .backgroundYP
+        nameTextField.backgroundColor = .YPbackground
         nameTextField.layer.cornerRadius = 16
         nameTextField.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: 0))
         nameTextField.leftViewMode = .always
@@ -36,19 +36,19 @@ final class CreateHabitViewController: UIViewController {
         tableView.dataSource = self
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
         tableView.layer.cornerRadius = 16
-        tableView.backgroundColor = .backgroundYP
+        tableView.backgroundColor = .YPbackground
         tableView.isScrollEnabled = false
         tableView.separatorInset = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
         
         cancelButton.setTitle("Отменить", for: .normal)
-        cancelButton.setTitleColor(.redYP, for: .normal)
+        cancelButton.setTitleColor(.red, for: .normal)
         cancelButton.layer.borderWidth = 1
-        cancelButton.layer.borderColor = UIColor.redYP.cgColor
+        cancelButton.layer.borderColor = UIColor.red.cgColor
         cancelButton.layer.cornerRadius = 16
         cancelButton.addTarget(self, action: #selector(didTapCancel), for: .touchUpInside)
         
         createButton.setTitle("Создать", for: .normal)
-        createButton.backgroundColor = .grayStatic
+        createButton.backgroundColor = .gray
         createButton.isEnabled = false
         createButton.layer.cornerRadius = 16
         createButton.addTarget(self, action: #selector(didTapCreate), for: .touchUpInside)
@@ -90,7 +90,7 @@ final class CreateHabitViewController: UIViewController {
         let newTracker = Tracker(
             id: UUID(),
             name: text,
-            color: .blueYP,
+            color: .blue,
             emoji: "☀️",
             schedule: selectedSchedule
         )
@@ -103,7 +103,7 @@ final class CreateHabitViewController: UIViewController {
         let isValid = isNameValid && isScheduleValid
         
         createButton.isEnabled = isValid
-        createButton.backgroundColor = isValid ? .blackYP : .grayStatic
+        createButton.backgroundColor = isValid ? .black : .gray
     }
 }
 
@@ -119,7 +119,7 @@ extension CreateHabitViewController: UITableViewDataSource, UITableViewDelegate 
         if indexPath.row == 1 {
             let scheduleText = selectedSchedule.map { $0.shortName }.joined(separator: ", ")
             cell.detailTextLabel?.text = scheduleText
-            cell.detailTextLabel?.textColor = .grayStatic
+            cell.detailTextLabel?.textColor = .gray
         }
         
         if indexPath.row == tableItems.count - 1 {

@@ -9,7 +9,7 @@ final class TrackersViewController: UIViewController {
         let button = UIButton(type: .custom)
         let plusImage = UIImage(systemName: "plus")?.withRenderingMode(.alwaysTemplate)
         button.setImage(plusImage, for: .normal)
-        button.tintColor = .blackYP
+        button.tintColor = .black
         button.imageView?.contentMode = .scaleAspectFit
         button.contentHorizontalAlignment = .leading
         button.addTarget(self, action: #selector(didTapAddTrackerButton), for: .touchUpInside)
@@ -19,7 +19,7 @@ final class TrackersViewController: UIViewController {
     private lazy var titleNameLabel: UILabel = {
         let label = UILabel()
         label.text = "Трекеры"
-        label.textColor = .blackYP
+        label.textColor = .black
         label.font = .systemFont(ofSize: 34, weight: .bold)
         return label
     }()
@@ -42,7 +42,7 @@ final class TrackersViewController: UIViewController {
     }()
     
     private lazy var stubImage: UIImageView = {
-        let iv = UIImageView(image: UIImage(named: "EmptyTrackerIcon"))
+        let iv = UIImageView(image: UIImage(named: "1"))
         iv.contentMode = .scaleAspectFit
         return iv
     }()
@@ -70,7 +70,7 @@ final class TrackersViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .whiteYP
+        view.backgroundColor = .white
         adapter.delegate = self
         searchBar.delegate = self
         
@@ -100,13 +100,12 @@ final class TrackersViewController: UIViewController {
         let field = searchBar.searchTextField
         
         NSLayoutConstraint.activate([
-            // Title Container
+            // Контейнер заголовка и поиска
             titleContainer.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             titleContainer.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             titleContainer.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             titleContainer.bottomAnchor.constraint(equalTo: searchBar.bottomAnchor, constant: 10),
             
-            // Add Button & Date Picker
             addTrackerButton.topAnchor.constraint(equalTo: titleContainer.topAnchor, constant: 1),
             addTrackerButton.leadingAnchor.constraint(equalTo: titleContainer.leadingAnchor, constant: 18),
             addTrackerButton.widthAnchor.constraint(equalToConstant: 42),
@@ -115,33 +114,33 @@ final class TrackersViewController: UIViewController {
             datePickerView.centerYAnchor.constraint(equalTo: addTrackerButton.centerYAnchor),
             datePickerView.trailingAnchor.constraint(equalTo: titleContainer.trailingAnchor, constant: -16),
             
-            // Title Label
             titleNameLabel.topAnchor.constraint(equalTo: addTrackerButton.bottomAnchor, constant: 1),
             titleNameLabel.leadingAnchor.constraint(equalTo: titleContainer.leadingAnchor, constant: 16),
             
-            // Search Bar
             searchBar.topAnchor.constraint(equalTo: titleNameLabel.bottomAnchor, constant: 7),
             searchBar.leadingAnchor.constraint(equalTo: titleContainer.leadingAnchor, constant: 8),
             searchBar.trailingAnchor.constraint(equalTo: titleContainer.trailingAnchor, constant: -8),
             field.heightAnchor.constraint(equalToConstant: 36),
             
-            // Collection View
+            // Коллекция
             collectionView.topAnchor.constraint(equalTo: titleContainer.bottomAnchor),
             collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             collectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
             
-            // Stub Container
+            // ЗАГЛУШКА (Контейнер и Подпись)
             stubContainer.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             stubContainer.centerYAnchor.constraint(equalTo: view.centerYAnchor),
             
             stubImage.widthAnchor.constraint(equalToConstant: 80),
             stubImage.heightAnchor.constraint(equalToConstant: 80),
-            stubImage.centerXAnchor.constraint(equalTo: stubContainer.centerXAnchor),
             stubImage.topAnchor.constraint(equalTo: stubContainer.topAnchor),
+            stubImage.centerXAnchor.constraint(equalTo: stubContainer.centerXAnchor),
             
+            // Подпись под картинкой
             stubLabel.topAnchor.constraint(equalTo: stubImage.bottomAnchor, constant: 8),
-            stubLabel.centerXAnchor.constraint(equalTo: stubContainer.centerXAnchor),
+            stubLabel.leadingAnchor.constraint(equalTo: stubContainer.leadingAnchor),
+            stubLabel.trailingAnchor.constraint(equalTo: stubContainer.trailingAnchor),
             stubLabel.bottomAnchor.constraint(equalTo: stubContainer.bottomAnchor)
         ])
     }

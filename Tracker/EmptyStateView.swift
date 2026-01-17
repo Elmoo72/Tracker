@@ -18,7 +18,7 @@ final class EmptyStateView: UIView {
     
     private func setupUI() {
         label.font = .systemFont(ofSize: 12, weight: .medium)
-        label.textColor = .blackYP
+        label.textColor = .black
         label.textAlignment = .center
         
         [imageView, label].forEach {

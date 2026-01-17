@@ -22,7 +22,7 @@ final class ScheduleViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .whiteYP
+        view.backgroundColor = .white
         setupUI()
     }
     
@@ -34,11 +34,11 @@ final class ScheduleViewController: UIViewController {
         tableView.dataSource = self
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
         tableView.layer.cornerRadius = 16
-        tableView.backgroundColor = .backgroundYP
+        tableView.backgroundColor = .YPbackground
         tableView.separatorInset = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
         
         doneButton.setTitle("Готово", for: .normal)
-        doneButton.backgroundColor = .blackYP
+        doneButton.backgroundColor = .black
         doneButton.layer.cornerRadius = 16
         doneButton.addTarget(self, action: #selector(didTapDone), for: .touchUpInside)
         
@@ -78,7 +78,7 @@ extension ScheduleViewController: UITableViewDataSource, UITableViewDelegate {
         cell.selectionStyle = .none
         
         let switchView = UISwitch()
-        switchView.onTintColor = .blueYP
+        switchView.onTintColor = .blue
         switchView.isOn = selectedDays.contains(day)
         switchView.tag = indexPath.row
         switchView.addTarget(self, action: #selector(switchChanged(_:)), for: .valueChanged)

@@ -38,7 +38,7 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
         nameLabel.translatesAutoresizingMaskIntoConstraints = false
         
         daysLabel.font = .systemFont(ofSize: 12, weight: .medium)
-        daysLabel.textColor = .blackYP
+        daysLabel.textColor = .black
         daysLabel.translatesAutoresizingMaskIntoConstraints = false
         
         completeButton.layer.cornerRadius = 17
