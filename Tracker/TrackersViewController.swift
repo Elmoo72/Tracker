@@ -98,53 +98,51 @@ final class TrackersViewController: UIViewController {
     
     private func setupConstraints() {
         let field = searchBar.searchTextField
-        
+
         NSLayoutConstraint.activate([
-            // Контейнер заголовка и поиска
             titleContainer.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             titleContainer.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             titleContainer.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             titleContainer.bottomAnchor.constraint(equalTo: searchBar.bottomAnchor, constant: 10),
-            
-            addTrackerButton.topAnchor.constraint(equalTo: titleContainer.topAnchor, constant: 1),
-            addTrackerButton.leadingAnchor.constraint(equalTo: titleContainer.leadingAnchor, constant: 18),
+
+            datePickerView.trailingAnchor.constraint(equalTo: titleContainer.trailingAnchor, constant: -16),
+            datePickerView.topAnchor.constraint(equalTo: titleContainer.topAnchor, constant: 5),
+            datePickerView.widthAnchor.constraint(greaterThanOrEqualToConstant: 77),
+
+            titleNameLabel.topAnchor.constraint(equalTo: titleContainer.topAnchor, constant: 44),
+            titleNameLabel.leadingAnchor.constraint(equalTo: titleContainer.leadingAnchor, constant: 16),
+
             addTrackerButton.widthAnchor.constraint(equalToConstant: 42),
             addTrackerButton.heightAnchor.constraint(equalToConstant: 42),
-            
-            datePickerView.centerYAnchor.constraint(equalTo: addTrackerButton.centerYAnchor),
-            datePickerView.trailingAnchor.constraint(equalTo: titleContainer.trailingAnchor, constant: -16),
-            
-            titleNameLabel.topAnchor.constraint(equalTo: addTrackerButton.bottomAnchor, constant: 1),
-            titleNameLabel.leadingAnchor.constraint(equalTo: titleContainer.leadingAnchor, constant: 16),
-            
+            addTrackerButton.centerYAnchor.constraint(equalTo: datePickerView.centerYAnchor),
+            addTrackerButton.leadingAnchor.constraint(equalTo: titleContainer.leadingAnchor, constant: 16),
+
             searchBar.topAnchor.constraint(equalTo: titleNameLabel.bottomAnchor, constant: 7),
-            searchBar.leadingAnchor.constraint(equalTo: titleContainer.leadingAnchor, constant: 8),
-            searchBar.trailingAnchor.constraint(equalTo: titleContainer.trailingAnchor, constant: -8),
-            field.heightAnchor.constraint(equalToConstant: 36),
-            
-            // Коллекция
+            searchBar.leadingAnchor.constraint(equalTo: titleContainer.leadingAnchor, constant: 16),
+            searchBar.trailingAnchor.constraint(equalTo: titleContainer.trailingAnchor, constant: -16),
+            field.heightAnchor.constraint(greaterThanOrEqualToConstant: 36),
+
+            stubContainer.topAnchor.constraint(equalTo: searchBar.bottomAnchor, constant: 10),
+            stubContainer.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            stubContainer.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            stubContainer.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+
+            stubImage.widthAnchor.constraint(equalToConstant: 80),
+            stubImage.heightAnchor.constraint(equalToConstant: 80),
+            stubImage.centerXAnchor.constraint(equalTo: stubContainer.centerXAnchor),
+            stubImage.centerYAnchor.constraint(equalTo: stubContainer.centerYAnchor),
+
+            stubLabel.centerXAnchor.constraint(equalTo: stubImage.centerXAnchor),
+            stubLabel.topAnchor.constraint(equalTo: stubImage.bottomAnchor, constant: 8),
+            stubLabel.leadingAnchor.constraint(greaterThanOrEqualTo: stubContainer.leadingAnchor, constant: 16),
+            stubLabel.trailingAnchor.constraint(lessThanOrEqualTo: stubContainer.trailingAnchor, constant: -16),
+
             collectionView.topAnchor.constraint(equalTo: titleContainer.bottomAnchor),
             collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            collectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-            
-            // ЗАГЛУШКА (Контейнер и Подпись)
-            stubContainer.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            stubContainer.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-            
-            stubImage.widthAnchor.constraint(equalToConstant: 80),
-            stubImage.heightAnchor.constraint(equalToConstant: 80),
-            stubImage.topAnchor.constraint(equalTo: stubContainer.topAnchor),
-            stubImage.centerXAnchor.constraint(equalTo: stubContainer.centerXAnchor),
-            
-            // Подпись под картинкой
-            stubLabel.topAnchor.constraint(equalTo: stubImage.bottomAnchor, constant: 8),
-            stubLabel.leadingAnchor.constraint(equalTo: stubContainer.leadingAnchor),
-            stubLabel.trailingAnchor.constraint(equalTo: stubContainer.trailingAnchor),
-            stubLabel.bottomAnchor.constraint(equalTo: stubContainer.bottomAnchor)
+            collectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
         ])
     }
-    
 
     @objc private func didTapAddTrackerButton() {
         let createHabitVC = CreateHabitViewController()
@@ -158,7 +156,6 @@ final class TrackersViewController: UIViewController {
     }
     
     private func updateVisibleCategories() {
-
         visibleCategories = categories
         adapter.update(with: visibleCategories)
         
@@ -168,19 +165,29 @@ final class TrackersViewController: UIViewController {
     }
 }
 
-
 extension TrackersViewController: UISearchBarDelegate {
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         updateVisibleCategories()
     }
 }
 
-
 extension TrackersViewController: TrackersCollectionViewDelegate {
     func trackersCollectionView(_ collectionView: TrackersCollectionView, didTapPlusFor tracker: Tracker, at indexPath: IndexPath) {
-        let record = TrackerRecord(trackerId: tracker.id, date: Calendar.current.startOfDay(for: currentDate))
-        if completedTrackers.contains(record) { completedTrackers.remove(record) }
-        else { completedTrackers.insert(record) }
+        
+        // ПРОВЕРКА ДАТЫ (Пункт 7.4): Запрет на отметку в будущем
+        let dateToCompare = Calendar.current.startOfDay(for: currentDate)
+        let today = Calendar.current.startOfDay(for: Date())
+        
+        if dateToCompare > today {
+            return // Выходим, если пользователь пытается отметить трекер завтра или позже
+        }
+
+        let record = TrackerRecord(trackerId: tracker.id, date: dateToCompare)
+        if completedTrackers.contains(record) {
+            completedTrackers.remove(record)
+        } else {
+            completedTrackers.insert(record)
+        }
         adapter.reloadItems(at: [indexPath])
     }
     
@@ -190,6 +197,10 @@ extension TrackersViewController: TrackersCollectionViewDelegate {
     
     func trackersCollectionView(_ collectionView: TrackersCollectionView, isCompleted tracker: Tracker) -> Bool {
         completedTrackers.contains(TrackerRecord(trackerId: tracker.id, date: Calendar.current.startOfDay(for: currentDate)))
+    }
+    
+    func trackersCollectionViewGetCurrentDate(_ collectionView: TrackersCollectionView) -> Date {
+        return currentDate
     }
 }
 

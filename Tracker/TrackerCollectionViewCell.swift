@@ -81,18 +81,24 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
         delegate?.didTapCompleteButton(of: self)
     }
     
-    func configure(with tracker: Tracker, isCompleted: Bool, completedDays: Int) {
+    func configure(with tracker: Tracker, isCompleted: Bool, completedDays: Int, isAllowedToMark: Bool) {
         cardView.backgroundColor = tracker.color
         emojiLabel.text = tracker.emoji
         nameLabel.text = tracker.name
         
-        let s = formatDaysString(completedDays)
-        daysLabel.text = s
+        daysLabel.text = formatDaysString(completedDays)
         
         let imageName = isCompleted ? "checkmark" : "plus"
         completeButton.setImage(UIImage(systemName: imageName), for: .normal)
         completeButton.backgroundColor = tracker.color
-        completeButton.alpha = isCompleted ? 0.3 : 1.0
+        
+        // Блокировка кнопки для будущих дат
+        completeButton.isEnabled = isAllowedToMark
+        if isAllowedToMark {
+            completeButton.alpha = isCompleted ? 0.3 : 1.0
+        } else {
+            completeButton.alpha = 0.3 // Визуально "выключаем", если дата в будущем
+        }
     }
     
     private func formatDaysString(_ count: Int) -> String {

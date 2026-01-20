@@ -4,6 +4,7 @@ protocol TrackersCollectionViewDelegate: AnyObject {
     func trackersCollectionView(_ collectionView: TrackersCollectionView, didTapPlusFor tracker: Tracker, at indexPath: IndexPath)
     func trackersCollectionView(_ collectionView: TrackersCollectionView, completedCountFor tracker: Tracker) -> Int
     func trackersCollectionView(_ collectionView: TrackersCollectionView, isCompleted tracker: Tracker) -> Bool
+    func trackersCollectionViewGetCurrentDate(_ collectionView: TrackersCollectionView) -> Date
 }
 
 final class TrackersCollectionView: NSObject {
@@ -54,8 +55,12 @@ extension TrackersCollectionView: UICollectionViewDataSource {
         let isCompleted = delegate?.trackersCollectionView(self, isCompleted: tracker) ?? false
         let count = delegate?.trackersCollectionView(self, completedCountFor: tracker) ?? 0
         
+        // Проверка возможности отметки (Пункт 7.4)
+        let currentDate = delegate?.trackersCollectionViewGetCurrentDate(self) ?? Date()
+        let isAllowedToMark = Calendar.current.startOfDay(for: currentDate) <= Calendar.current.startOfDay(for: Date())
+        
         cell.delegate = self
-        cell.configure(with: tracker, isCompleted: isCompleted, completedDays: count)
+        cell.configure(with: tracker, isCompleted: isCompleted, completedDays: count, isAllowedToMark: isAllowedToMark)
         return cell
     }
     
