@@ -38,17 +38,30 @@
 		2780F2FE2F1AA055003745EA /* Exceptions for "Tracker" folder in "Tracker" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				"CreateHabitViewController 2.swift",
 				Info.plist,
+				Untitled.swift,
 			);
 			target = 2780F2D52F1AA054003745EA /* Tracker */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
+		27C24BEC2F200E8700C7E2B1 /* Exceptions for "Tracker" folder in "Copy Bundle Resources" phase from "Tracker" target */ = {
+			isa = PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet;
+			buildPhase = 2780F2D42F1AA054003745EA /* Resources */;
+			membershipExceptions = (
+				"CreateHabitViewController 2.swift",
+			);
+		};
+/* End PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		2780F2D82F1AA054003745EA /* Tracker */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				2780F2FE2F1AA055003745EA /* Exceptions for "Tracker" folder in "Tracker" target */,
+				27C24BEC2F200E8700C7E2B1 /* Exceptions for "Tracker" folder in "Copy Bundle Resources" phase from "Tracker" target */,
 			);
 			path = Tracker;
 			sourceTree = "<group>";
