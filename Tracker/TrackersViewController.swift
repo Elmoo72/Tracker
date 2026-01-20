@@ -99,49 +99,65 @@ final class TrackersViewController: UIViewController {
     private func setupConstraints() {
         let field = searchBar.searchTextField
         
+        // Скрываем навигационный бар системы, чтобы он не добавлял лишних отступов сверху
+        navigationController?.setNavigationBarHidden(true, animated: false)
+        
+        [titleContainer, titleNameLabel, addTrackerButton, searchBar, stubContainer, stubImage, stubLabel, datePickerView, field, collectionView].forEach {
+            $0.translatesAutoresizingMaskIntoConstraints = false
+        }
+        
         NSLayoutConstraint.activate([
-            // Контейнер заголовка и поиска
-            titleContainer.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            // Контейнер заголовка прижимаем к самому верху экрана
+            titleContainer.topAnchor.constraint(equalTo: view.topAnchor),
             titleContainer.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             titleContainer.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             titleContainer.bottomAnchor.constraint(equalTo: searchBar.bottomAnchor, constant: 10),
             
-            addTrackerButton.topAnchor.constraint(equalTo: titleContainer.topAnchor, constant: 1),
-            addTrackerButton.leadingAnchor.constraint(equalTo: titleContainer.leadingAnchor, constant: 18),
+            // DatePicker — отступ 45 от верха экрана (уровень статус-бара)
+            datePickerView.trailingAnchor.constraint(equalTo: titleContainer.trailingAnchor, constant: -16),
+            datePickerView.topAnchor.constraint(equalTo: titleContainer.topAnchor, constant: 45),
+            datePickerView.widthAnchor.constraint(greaterThanOrEqualToConstant: 77),
+            
+            // Кнопка "+" — на одной линии с пикером
             addTrackerButton.widthAnchor.constraint(equalToConstant: 42),
             addTrackerButton.heightAnchor.constraint(equalToConstant: 42),
+            addTrackerButton.centerYAnchor.constraint(equalTo: datePickerView.centerYAnchor),
+            addTrackerButton.leadingAnchor.constraint(equalTo: titleContainer.leadingAnchor, constant: 6),
             
-            datePickerView.centerYAnchor.constraint(equalTo: addTrackerButton.centerYAnchor),
-            datePickerView.trailingAnchor.constraint(equalTo: titleContainer.trailingAnchor, constant: -16),
-            
-            titleNameLabel.topAnchor.constraint(equalTo: addTrackerButton.bottomAnchor, constant: 1),
+            // Заголовок "Трекеры" — под кнопкой (как ты просил увеличить отступ)
+            titleNameLabel.topAnchor.constraint(equalTo: titleContainer.topAnchor, constant: 88),
             titleNameLabel.leadingAnchor.constraint(equalTo: titleContainer.leadingAnchor, constant: 16),
             
-            searchBar.topAnchor.constraint(equalTo: titleNameLabel.bottomAnchor, constant: 7),
+            // Строка поиска (SearchBar)
             searchBar.leadingAnchor.constraint(equalTo: titleContainer.leadingAnchor, constant: 8),
             searchBar.trailingAnchor.constraint(equalTo: titleContainer.trailingAnchor, constant: -8),
-            field.heightAnchor.constraint(equalToConstant: 36),
+            searchBar.topAnchor.constraint(equalTo: titleNameLabel.bottomAnchor, constant: 7),
+            
+            field.heightAnchor.constraint(greaterThanOrEqualToConstant: 36),
+            field.leadingAnchor.constraint(equalTo: searchBar.leadingAnchor),
+            field.trailingAnchor.constraint(equalTo: searchBar.trailingAnchor),
+            
+            // Заглушка
+            stubContainer.topAnchor.constraint(equalTo: searchBar.bottomAnchor, constant: 10),
+            stubContainer.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            stubContainer.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            stubContainer.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            
+            stubImage.widthAnchor.constraint(equalToConstant: 80),
+            stubImage.heightAnchor.constraint(equalToConstant: 80),
+            stubImage.centerXAnchor.constraint(equalTo: stubContainer.centerXAnchor),
+            stubImage.centerYAnchor.constraint(equalTo: stubContainer.centerYAnchor),
+            
+            stubLabel.centerXAnchor.constraint(equalTo: stubImage.centerXAnchor),
+            stubLabel.topAnchor.constraint(equalTo: stubImage.bottomAnchor, constant: 8),
+            stubLabel.leadingAnchor.constraint(greaterThanOrEqualTo: stubContainer.leadingAnchor, constant: 16),
+            stubLabel.trailingAnchor.constraint(lessThanOrEqualTo: stubContainer.trailingAnchor, constant: -16),
             
             // Коллекция
             collectionView.topAnchor.constraint(equalTo: titleContainer.bottomAnchor),
             collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             collectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-            
-            // ЗАГЛУШКА (Контейнер и Подпись)
-            stubContainer.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            stubContainer.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-            
-            stubImage.widthAnchor.constraint(equalToConstant: 80),
-            stubImage.heightAnchor.constraint(equalToConstant: 80),
-            stubImage.topAnchor.constraint(equalTo: stubContainer.topAnchor),
-            stubImage.centerXAnchor.constraint(equalTo: stubContainer.centerXAnchor),
-            
-            // Подпись под картинкой
-            stubLabel.topAnchor.constraint(equalTo: stubImage.bottomAnchor, constant: 8),
-            stubLabel.leadingAnchor.constraint(equalTo: stubContainer.leadingAnchor),
-            stubLabel.trailingAnchor.constraint(equalTo: stubContainer.trailingAnchor),
-            stubLabel.bottomAnchor.constraint(equalTo: stubContainer.bottomAnchor)
+            collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
         ])
     }
     

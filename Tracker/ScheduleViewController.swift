@@ -34,7 +34,7 @@ final class ScheduleViewController: UIViewController {
         tableView.dataSource = self
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
         tableView.layer.cornerRadius = 16
-        tableView.backgroundColor = .YPbackground
+        tableView.backgroundColor = .YPBackground
         tableView.separatorInset = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
         
         doneButton.setTitle("Готово", for: .normal)

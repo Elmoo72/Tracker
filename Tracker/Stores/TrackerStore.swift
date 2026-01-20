@@ -36,7 +36,7 @@ final class TrackerStore: NSObject {
         trackerCoreData.id = tracker.id
         trackerCoreData.name = tracker.name
         trackerCoreData.emoji = tracker.emoji
-        trackerCoreData.color = tracker.color.toHexString() // Нужен extension для UIColor
+        trackerCoreData.color = tracker.color.toHexString
         trackerCoreData.schedule = tracker.schedule.map { $0.rawValue } as NSArray
         trackerCoreData.category = category
         
