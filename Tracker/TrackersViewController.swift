@@ -7,7 +7,7 @@ final class TrackersViewController: UIViewController {
     
     private lazy var addTrackerButton: UIButton = {
         let button = UIButton(type: .custom)
-        let plusImage = UIImage(systemName: "plus")?.withRenderingMode(.alwaysTemplate)
+        let plusImage = UIImage(named: "plus")?.withRenderingMode(.alwaysTemplate)
         button.setImage(plusImage, for: .normal)
         button.tintColor = .black
         button.imageView?.contentMode = .scaleAspectFit
