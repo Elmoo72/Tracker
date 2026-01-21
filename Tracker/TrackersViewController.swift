@@ -57,7 +57,9 @@ final class TrackersViewController: UIViewController {
     
     private let collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
-        return UICollectionView(frame: .zero, collectionViewLayout: layout)
+        let cv = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        cv.backgroundColor = .white
+        return cv
     }()
     
     private var categories: [TrackerCategory] = []
@@ -73,6 +75,8 @@ final class TrackersViewController: UIViewController {
         view.backgroundColor = .white
         adapter.delegate = self
         searchBar.delegate = self
+        
+        navigationController?.setNavigationBarHidden(true, animated: false)
         
         addSubviews()
         setupConstraints()
@@ -99,45 +103,43 @@ final class TrackersViewController: UIViewController {
     private func setupConstraints() {
         let field = searchBar.searchTextField
         
-        // Скрываем навигационный бар системы, чтобы он не добавлял лишних отступов сверху
-        navigationController?.setNavigationBarHidden(true, animated: false)
-        
         [titleContainer, titleNameLabel, addTrackerButton, searchBar, stubContainer, stubImage, stubLabel, datePickerView, field, collectionView].forEach {
             $0.translatesAutoresizingMaskIntoConstraints = false
         }
         
         NSLayoutConstraint.activate([
-            // Контейнер заголовка прижимаем к самому верху экрана
-            titleContainer.topAnchor.constraint(equalTo: view.topAnchor),
+            // Контейнер
+            titleContainer.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             titleContainer.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             titleContainer.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             titleContainer.bottomAnchor.constraint(equalTo: searchBar.bottomAnchor, constant: 10),
             
-            // DatePicker — отступ 45 от верха экрана (уровень статус-бара)
+            // DatePicker — по твоим цифрам (top 5, trailing -16)
             datePickerView.trailingAnchor.constraint(equalTo: titleContainer.trailingAnchor, constant: -16),
-            datePickerView.topAnchor.constraint(equalTo: titleContainer.topAnchor, constant: 45),
+            datePickerView.topAnchor.constraint(equalTo: titleContainer.topAnchor, constant: 5),
             datePickerView.widthAnchor.constraint(greaterThanOrEqualToConstant: 77),
             
-            // Кнопка "+" — на одной линии с пикером
+            // Заголовок "Трекеры" — по твоим цифрам (top 44, leading 16)
+            titleNameLabel.topAnchor.constraint(equalTo: titleContainer.topAnchor, constant: 44),
+            titleNameLabel.leadingAnchor.constraint(equalTo: titleContainer.leadingAnchor, constant: 16),
+            
+            // Кнопка "+" — центрирована по пикеру
             addTrackerButton.widthAnchor.constraint(equalToConstant: 42),
             addTrackerButton.heightAnchor.constraint(equalToConstant: 42),
             addTrackerButton.centerYAnchor.constraint(equalTo: datePickerView.centerYAnchor),
-            addTrackerButton.leadingAnchor.constraint(equalTo: titleContainer.leadingAnchor, constant: 6),
+            addTrackerButton.leadingAnchor.constraint(equalTo: titleContainer.leadingAnchor, constant: 16),
             
-            // Заголовок "Трекеры" — под кнопкой (как ты просил увеличить отступ)
-            titleNameLabel.topAnchor.constraint(equalTo: titleContainer.topAnchor, constant: 88),
-            titleNameLabel.leadingAnchor.constraint(equalTo: titleContainer.leadingAnchor, constant: 16),
-            
-            // Строка поиска (SearchBar)
-            searchBar.leadingAnchor.constraint(equalTo: titleContainer.leadingAnchor, constant: 8),
-            searchBar.trailingAnchor.constraint(equalTo: titleContainer.trailingAnchor, constant: -8),
+            // SearchBar — ПРИВЯЗАН НИЖЕ ЛЕЙБЛА НА 7 (как просил ревьюер)
+            searchBar.leadingAnchor.constraint(equalTo: titleContainer.leadingAnchor, constant: 16),
+            searchBar.trailingAnchor.constraint(equalTo: titleContainer.trailingAnchor, constant: -16),
             searchBar.topAnchor.constraint(equalTo: titleNameLabel.bottomAnchor, constant: 7),
             
+            // Внутреннее поле поиска
             field.heightAnchor.constraint(greaterThanOrEqualToConstant: 36),
             field.leadingAnchor.constraint(equalTo: searchBar.leadingAnchor),
             field.trailingAnchor.constraint(equalTo: searchBar.trailingAnchor),
             
-            // Заглушка
+            // Заглушка (stub)
             stubContainer.topAnchor.constraint(equalTo: searchBar.bottomAnchor, constant: 10),
             stubContainer.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
             stubContainer.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -161,7 +163,6 @@ final class TrackersViewController: UIViewController {
         ])
     }
     
-
     @objc private func didTapAddTrackerButton() {
         let createHabitVC = CreateHabitViewController()
         createHabitVC.delegate = self
@@ -174,7 +175,6 @@ final class TrackersViewController: UIViewController {
     }
     
     private func updateVisibleCategories() {
-
         visibleCategories = categories
         adapter.update(with: visibleCategories)
         
@@ -184,14 +184,18 @@ final class TrackersViewController: UIViewController {
     }
 }
 
-
+// MARK: - UISearchBarDelegate
 extension TrackersViewController: UISearchBarDelegate {
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        searchBar.resignFirstResponder()
+    }
+    
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         updateVisibleCategories()
     }
 }
 
-
+// MARK: - Delegates
 extension TrackersViewController: TrackersCollectionViewDelegate {
     func trackersCollectionView(_ collectionView: TrackersCollectionView, didTapPlusFor tracker: Tracker, at indexPath: IndexPath) {
         let record = TrackerRecord(trackerId: tracker.id, date: Calendar.current.startOfDay(for: currentDate))

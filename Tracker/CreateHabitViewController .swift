@@ -11,28 +11,30 @@ final class CreateHabitViewController: UIViewController {
     private let trackerStore = TrackerStore(context: PersistentContainer.shared.context)
     
     private var trackerName: String = ""
-    private var selectedCategory: String? = ""
+    private var selectedCategory: String? = "Важное"
     private var selectedSchedule: Set<WeekDay> = []
     private var selectedEmoji: String?
     private var selectedColor: UIColor?
     
     private let emojis = ["🙂", "😻", "🌺", "🐶", "❤️", "😱", "😇", "😡", "🥶", "🤔", "🙌", "🍔", "🥦", "🏓", "🥇", "🎸", "🏝", "✨"]
-    private let colors: [UIColor] = [.systemRed, .systemOrange, .systemYellow, .systemGreen, .YPBlue, .systemPurple, .systemPink, .systemTeal, .systemIndigo, .YPGray, .brown, .magenta, .orange, .blue, .red, .green, .purple, .cyan]
+    private let colors: [UIColor] = [.systemRed, .systemOrange, .systemYellow, .systemGreen, .systemBlue, .systemPurple, .systemPink, .systemTeal, .systemIndigo, .systemGray, .brown, .magenta, .orange, .blue, .red, .green, .purple, .cyan]
     
     // MARK: - UI Elements
     private lazy var scrollView: UIScrollView = {
         let scroll = UIScrollView()
         scroll.translatesAutoresizingMaskIntoConstraints = false
+        scroll.keyboardDismissMode = .onDrag
         return scroll
     }()
     
     private lazy var textField: UITextField = {
         let tf = UITextField()
         tf.placeholder = "Введите название трекера"
-        tf.backgroundColor = .YPBackground
+        tf.backgroundColor = .systemGray6
         tf.layer.cornerRadius = 16
         tf.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: 0))
         tf.leftViewMode = .always
+        tf.delegate = self
         tf.addTarget(self, action: #selector(textChanged), for: .editingChanged)
         return tf
     }()
@@ -41,9 +43,8 @@ final class CreateHabitViewController: UIViewController {
         let tv = UITableView(frame: .zero, style: .plain)
         tv.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
         tv.layer.cornerRadius = 16
-        tv.backgroundColor = .YPBackground
+        tv.backgroundColor = .systemGray6
         tv.isScrollEnabled = false
-        tv.separatorInset = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
         tv.dataSource = self
         tv.delegate = self
         return tv
@@ -62,21 +63,21 @@ final class CreateHabitViewController: UIViewController {
     }()
 
     private lazy var cancelButton: UIButton = {
-        let btn = UIButton()
+        let btn = UIButton(type: .system)
         btn.setTitle("Отменить", for: .normal)
-        btn.setTitleColor(.YPRed, for: .normal)
+        btn.setTitleColor(.systemRed, for: .normal)
         btn.layer.borderWidth = 1
-        btn.layer.borderColor = UIColor.YPRed.cgColor
+        btn.layer.borderColor = UIColor.systemRed.cgColor
         btn.layer.cornerRadius = 16
         btn.addTarget(self, action: #selector(cancelTap), for: .touchUpInside)
         return btn
     }()
     
     private lazy var createButton: UIButton = {
-        let btn = UIButton()
+        let btn = UIButton(type: .system)
         btn.setTitle("Создать", for: .normal)
-        btn.setTitleColor(.YPWhite, for: .normal)
-        btn.backgroundColor = .YPGray
+        btn.setTitleColor(.white, for: .normal)
+        btn.backgroundColor = .systemGray
         btn.layer.cornerRadius = 16
         btn.isEnabled = false
         btn.addTarget(self, action: #selector(saveTracker), for: .touchUpInside)
@@ -91,11 +92,13 @@ final class CreateHabitViewController: UIViewController {
         return stack
     }()
 
+    // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .YPWhite
+        view.backgroundColor = .white
         title = "Новая привычка"
         setupLayout()
+        setupKeyboardHiding()
     }
     
     private func setupLayout() {
@@ -134,7 +137,7 @@ final class CreateHabitViewController: UIViewController {
             collectionView.topAnchor.constraint(equalTo: tableView.bottomAnchor, constant: 32),
             collectionView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             collectionView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            collectionView.heightAnchor.constraint(equalToConstant: 500),
+            collectionView.heightAnchor.constraint(equalToConstant: 450),
             
             buttonStackView.topAnchor.constraint(equalTo: collectionView.bottomAnchor, constant: 16),
             buttonStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
@@ -142,6 +145,16 @@ final class CreateHabitViewController: UIViewController {
             buttonStackView.heightAnchor.constraint(equalToConstant: 60),
             buttonStackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -24)
         ])
+    }
+    
+    private func setupKeyboardHiding() {
+        let tap = UITapGestureRecognizer(target: self, action: #selector(hideKeyboard))
+        tap.cancelsTouchesInView = false
+        view.addGestureRecognizer(tap)
+    }
+
+    @objc private func hideKeyboard() {
+        view.endEditing(true)
     }
     
     @objc private func textChanged() {
@@ -154,40 +167,54 @@ final class CreateHabitViewController: UIViewController {
     private func checkValidation() {
         let isReady = !trackerName.isEmpty && selectedEmoji != nil && selectedColor != nil && !selectedSchedule.isEmpty
         createButton.isEnabled = isReady
-        createButton.backgroundColor = isReady ? .YPBlack : .YPGray
+        createButton.backgroundColor = isReady ? .black : .systemGray
     }
     
     @objc private func saveTracker() {
         guard let emoji = selectedEmoji, let color = selectedColor else { return }
-        let newTracker = Tracker(id: UUID(), name: trackerName, color: color, emoji: emoji, schedule: Array(selectedSchedule))
+        
+        let newTracker = Tracker(
+            id: UUID(),
+            name: trackerName,
+            color: color,
+            emoji: emoji,
+            schedule: Array(selectedSchedule)
+        )
+        
         trackerStore.addNewTracker(newTracker, to: selectedCategory ?? "Важное")
+        delegate?.didCreateTracker(newTracker)
         dismiss(animated: true)
     }
 }
 
-// MARK: - TableView
+// MARK: - UITextFieldDelegate
+extension CreateHabitViewController: UITextFieldDelegate {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder() // Скрывает клавиатуру при нажатии "Enter"
+        return true
+    }
+}
+
+// MARK: - UITableView
 extension CreateHabitViewController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int { 2 }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = UITableViewCell(style: .subtitle, reuseIdentifier: "cell")
+        let cell = tableView.dequeueReusableCell(withIdentifier: "cell") ?? UITableViewCell(style: .subtitle, reuseIdentifier: "cell")
         cell.accessoryType = .disclosureIndicator
         cell.backgroundColor = .clear
         cell.selectionStyle = .none
-        
-        if indexPath.row == 1 {
-            cell.separatorInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: .greatestFiniteMagnitude)
-        }
         
         if indexPath.row == 0 {
             cell.textLabel?.text = "Категория"
             cell.detailTextLabel?.text = selectedCategory
         } else {
             cell.textLabel?.text = "Расписание"
-            let scheduleText = selectedSchedule.isEmpty ? "" : selectedSchedule.map { $0.shortName }.joined(separator: ", ")
+            let sortedDays = selectedSchedule.sorted { $0.rawValue < $1.rawValue }
+            let scheduleText = sortedDays.isEmpty ? "" : sortedDays.map { $0.shortName }.joined(separator: ", ")
             cell.detailTextLabel?.text = scheduleText
         }
-        cell.detailTextLabel?.textColor = .YPGray
+        cell.detailTextLabel?.textColor = .systemGray
         return cell
     }
     
@@ -197,26 +224,40 @@ extension CreateHabitViewController: UITableViewDataSource, UITableViewDelegate 
         if indexPath.row == 1 {
             let vc = ScheduleViewController()
             vc.delegate = self
+            vc.setupCurrentSchedule(selectedSchedule)
             present(UINavigationController(rootViewController: vc), animated: true)
         }
     }
 }
 
-// MARK: - CollectionView
+// MARK: - UICollectionView
 extension CreateHabitViewController: UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     func numberOfSections(in collectionView: UICollectionView) -> Int { 2 }
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int { 18 }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if indexPath.section == 0 {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "EmojiCell", for: indexPath) as! EmojiCell
+            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "EmojiCell", for: indexPath) as? EmojiCell else {
+                return UICollectionViewCell()
+            }
             cell.configure(with: emojis[indexPath.row], isSelected: emojis[indexPath.row] == selectedEmoji)
             return cell
         } else {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ColorCell", for: indexPath) as! ColorCell
+            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ColorCell", for: indexPath) as? ColorCell else {
+                return UICollectionViewCell()
+            }
             cell.configure(with: colors[indexPath.row], isSelected: colors[indexPath.row] == selectedColor)
             return cell
         }
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        let cellWidth = (collectionView.frame.width - 36) / 6
+        return CGSize(width: cellWidth, height: cellWidth)
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
+        return UIEdgeInsets(top: 24, left: 18, bottom: 24, right: 18)
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
@@ -225,22 +266,9 @@ extension CreateHabitViewController: UICollectionViewDataSource, UICollectionVie
         collectionView.reloadSections(IndexSet(integer: indexPath.section))
         checkValidation()
     }
-    
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        let availableWidth = collectionView.frame.width - 36
-        let cellWidth = availableWidth / 6
-        return CGSize(width: cellWidth, height: cellWidth)
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
-        return UIEdgeInsets(top: 24, left: 18, bottom: 24, right: 18)
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat { 0 }
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat { 0 }
 }
 
-// ЭТОТ БЛОК ИСПРАВЛЯЕТ ТВОЮ ОШИБКУ
+// MARK: - ScheduleDelegate
 extension CreateHabitViewController: ScheduleDelegate {
     func didUpdateSchedule(_ selectedDays: Set<WeekDay>) {
         self.selectedSchedule = selectedDays
