@@ -2,7 +2,7 @@ import UIKit
 
 // MARK: - Delegate Protocol
 protocol CreateHabitDelegate: AnyObject {
-    func didCreateTracker(_ tracker: Tracker)
+    func didCreateTracker(_ tracker: Tracker, inCategory category: TrackerCategory)
 }
 
 final class CreateHabitViewController: UIViewController {
@@ -23,6 +23,7 @@ final class CreateHabitViewController: UIViewController {
     private var selectedColor: UIColor?
     private var selectedWeekdays = Set<WeekDay>()
     private var categorySubtitle: String? = nil
+    private var selectedCategory: TrackerCategory? = nil
     
     // MARK: - UI Elements
     private lazy var scrollView: UIScrollView = {
@@ -208,10 +209,11 @@ final class CreateHabitViewController: UIViewController {
         let isEmojiSelected = selectedEmoji != nil
         let isColorSelected = selectedColor != nil
         let isScheduleSelected = !selectedWeekdays.isEmpty
+        let isCategorySelected = categorySubtitle != nil
         
         limitLabel.isHidden = text.count <= 38
         
-        let isFormValid = isTextValid && isEmojiSelected && isColorSelected && isScheduleSelected
+        let isFormValid = isTextValid && isEmojiSelected && isColorSelected && isScheduleSelected && isCategorySelected
         
         createButton.isEnabled = isFormValid
         createButton.backgroundColor = isFormValid ? .YPBlack : .YPGray
@@ -225,7 +227,8 @@ final class CreateHabitViewController: UIViewController {
         print("Нажата кнопка Создать") // Для отладки
         guard let name = textField.text,
               let emoji = selectedEmoji,
-              let color = selectedColor else { return }
+              let color = selectedColor,
+              let category = selectedCategory else { return }
         
         let newTracker = Tracker(
             id: UUID(),
@@ -235,7 +238,7 @@ final class CreateHabitViewController: UIViewController {
             schedule: Array(selectedWeekdays)
         )
         
-        delegate?.didCreateTracker(newTracker)
+        delegate?.didCreateTracker(newTracker, inCategory: category)
         print("Делегат вызван, закрываем экран")
         dismiss(animated: true)
     }
@@ -274,7 +277,17 @@ extension CreateHabitViewController: UITableViewDelegate, UITableViewDataSource 
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat { 75 }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        if indexPath.row == 1 {
+        if indexPath.row == 0 {
+            // Открываем экран выбора категории
+            let categoryVC = CategoryViewController()
+            categoryVC.onCategorySelected = { [weak self] category in
+                self?.selectedCategory = category
+                self?.categorySubtitle = category.title
+                self?.tableView.reloadData()
+                self?.updateCreateButtonState()
+            }
+            navigationController?.pushViewController(categoryVC, animated: true)
+        } else if indexPath.row == 1 {
             let vc = ScheduleViewController()
             vc.onScheduleSelected = { [weak self] days in
                 self?.selectedWeekdays = days

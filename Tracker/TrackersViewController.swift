@@ -282,8 +282,8 @@ extension TrackersViewController: UICollectionViewDataSource, UICollectionViewDe
 
 // MARK: - CreateHabitDelegate
 extension TrackersViewController: CreateHabitDelegate {
-    func didCreateTracker(_ tracker: Tracker) {
-        try? trackerStore.addNewTracker(tracker, toCategoryName: "Важное")
+    func didCreateTracker(_ tracker: Tracker, inCategory category: TrackerCategory) {
+        try? trackerStore.addNewTracker(tracker, toCategoryName: category.title)
         fetchData()
     }
 }

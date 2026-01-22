@@ -16,8 +16,16 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window.makeKeyAndVisible()
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-            let tabBarController = TabBarController()
-            window.rootViewController = tabBarController
+            // Проверяем, показывался ли онбординг ранее
+            let hasSeenOnboarding = UserDefaults.standard.bool(forKey: "hasSeenOnboarding")
+            
+            if hasSeenOnboarding {
+                let tabBarController = TabBarController()
+                window.rootViewController = tabBarController
+            } else {
+                let onboardingViewController = OnboardingViewController()
+                window.rootViewController = onboardingViewController
+            }
         }
     }
 
