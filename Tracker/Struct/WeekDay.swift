@@ -1,3 +1,5 @@
+import Foundation
+
 enum WeekDay: Int, CaseIterable {
     case sunday = 1, monday, tuesday, wednesday, thursday, friday, saturday
     
@@ -13,7 +15,7 @@ enum WeekDay: Int, CaseIterable {
         }
     }
     
-    var shortName: String {
+    var shortTitle: String {
         switch self {
         case .monday: return "Пн"
         case .tuesday: return "Вт"
@@ -23,5 +25,14 @@ enum WeekDay: Int, CaseIterable {
         case .saturday: return "Сб"
         case .sunday: return "Вс"
         }
+    }
+
+    static func from(_ string: String) -> [WeekDay] {
+        let components = string.components(separatedBy: ",")
+        return components.compactMap { Int($0) }.compactMap { WeekDay(rawValue: $0) }
+    }
+
+    static func encode(_ schedule: [WeekDay]) -> String {
+        return schedule.map { String($0.rawValue) }.joined(separator: ",")
     }
 }

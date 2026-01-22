@@ -3,52 +3,29 @@ import CoreData
 
 final class TrackerStore: NSObject {
     private let context: NSManagedObjectContext
+    private let trackerCategoryStore: TrackerCategoryStore
 
     init(context: NSManagedObjectContext) {
         self.context = context
+        // Создаем экземпляр стора категорий для связи
+        self.trackerCategoryStore = TrackerCategoryStore(context: context)
         super.init()
     }
 
-    func addNewTracker(_ tracker: Tracker, to categoryName: String) {
-        // 1. Получаем описание сущности для Категории
-        guard let categoryEntity = NSEntityDescription.entity(forEntityName: "TrackerCategoryCoreData", in: context) else {
-            print("ОШИБКА: Сущность TrackerCategoryCoreData не найдена")
-            return
-        }
+    func addNewTracker(_ tracker: Tracker, toCategoryName categoryName: String) throws {
+        let categoryCoreData = try trackerCategoryStore.categoryCoreData(with: categoryName)
         
-        let categoryRequest = NSFetchRequest<TrackerCategoryCoreData>(entityName: "TrackerCategoryCoreData")
-        categoryRequest.predicate = NSPredicate(format: "title == %@", categoryName)
-        
-        let categoryCoreData: TrackerCategoryCoreData
-        
-        if let existingCategory = try? context.fetch(categoryRequest).first {
-            categoryCoreData = existingCategory
-        } else {
-            categoryCoreData = TrackerCategoryCoreData(entity: categoryEntity, insertInto: context)
-            categoryCoreData.title = categoryName
-        }
-        
-        // 2. Получаем описание сущности для Трекера
-        guard let trackerEntity = NSEntityDescription.entity(forEntityName: "TrackerCoreData", in: context) else {
-            print("ОШИБКА: Сущность TrackerCoreData не найдена")
-            return
-        }
-        
-        let trackerCoreData = TrackerCoreData(entity: trackerEntity, insertInto: context)
+        let trackerCoreData = TrackerCoreData(context: context)
         trackerCoreData.id = tracker.id
         trackerCoreData.name = tracker.name
         trackerCoreData.emoji = tracker.emoji
-        trackerCoreData.color = tracker.color.toHexString
-        trackerCoreData.schedule = tracker.schedule.map { Int16($0.rawValue) } as NSObject
+        // Используем твой extension hexString для UIColor
+        trackerCoreData.color = tracker.color.hexString
+        // Используем твой WeekDay.encode
+        trackerCoreData.schedule = WeekDay.encode(tracker.schedule) as NSObject
         
-        // Устанавливаем связь (Inverse сработает автоматически)
         trackerCoreData.category = categoryCoreData
         
-        do {
-            try context.save()
-            print("✅ Трекер успешно сохранен в базу")
-        } catch {
-            print("❌ Ошибка сохранения Core Data: \(error)")
-        }
+        try context.save()
     }
 }

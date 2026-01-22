@@ -1,4 +1,5 @@
 import CoreData
+import Foundation
 
 final class TrackerRecordStore: NSObject {
     private let context: NSManagedObjectContext
@@ -6,12 +7,28 @@ final class TrackerRecordStore: NSObject {
     init(context: NSManagedObjectContext) {
         self.context = context
     }
+ 
+    func fetchRecords() -> Set<TrackerRecord> {
+        let request = TrackerRecordCoreData.fetchRequest()
+        
+        do {
+            let results = try context.fetch(request)
+            let records = results.compactMap { coreDataRecord -> TrackerRecord? in
+                guard let id = coreDataRecord.id,
+                      let date = coreDataRecord.date else { return nil }
+                return TrackerRecord(trackerId: id, date: date)
+            }
+            return Set(records)
+        } catch {
+            print("Ошибка при чтении TrackerRecord: \(error)")
+            return []
+        }
+    }
     
     func add(_ record: TrackerRecord) throws {
         let recordCoreData = TrackerRecordCoreData(context: context)
         recordCoreData.id = record.trackerId
         recordCoreData.date = record.date
-        // Здесь можно связать с TrackerCoreData через fetchRequest по id
         try context.save()
     }
     

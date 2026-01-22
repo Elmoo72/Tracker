@@ -1,13 +1,49 @@
 import CoreData
+import UIKit // Обязательно для UIColor и работы с UI-моделями
 
 final class TrackerCategoryStore: NSObject {
     private let context: NSManagedObjectContext
     
     init(context: NSManagedObjectContext) {
         self.context = context
+        super.init() // Добавляем вызов супер-инициализатора NSObject
     }
     
-    // Получение или создание категории (например, для первой привычки)
+    func fetchCategories() throws -> [TrackerCategory] {
+        let request = TrackerCategoryCoreData.fetchRequest()
+        let categoriesCoreData = try context.fetch(request)
+        
+        return categoriesCoreData.compactMap { (coreDataCategory) -> TrackerCategory? in
+            guard let title = coreDataCategory.title,
+                  let trackersRaw = coreDataCategory.trackers?.allObjects as? [TrackerCoreData] else {
+                return nil
+            }
+            
+            let trackers: [Tracker] = trackersRaw.compactMap { (coreDataTracker) -> Tracker? in
+                guard let id = coreDataTracker.id,
+                      let name = coreDataTracker.name,
+                      let emoji = coreDataTracker.emoji,
+                      let colorHex = coreDataTracker.color,
+                      let scheduleRaw = coreDataTracker.schedule as? String else {
+                    return nil
+                }
+                
+                // Используем твой инициализатор из extension UIColor
+                guard let color = UIColor(hex: colorHex) else { return nil }
+                
+                return Tracker(
+                    id: id,
+                    name: name,
+                    color: color,
+                    emoji: emoji,
+                    schedule: WeekDay.from(scheduleRaw)
+                )
+            }
+            
+            return TrackerCategory(title: title, trackers: trackers)
+        }
+    }
+    
     func categoryCoreData(with title: String) throws -> TrackerCategoryCoreData {
         let request = TrackerCategoryCoreData.fetchRequest()
         request.predicate = NSPredicate(format: "title == %@", title)

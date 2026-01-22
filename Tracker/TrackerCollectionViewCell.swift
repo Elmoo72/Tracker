@@ -38,7 +38,7 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
         nameLabel.translatesAutoresizingMaskIntoConstraints = false
         
         daysLabel.font = .systemFont(ofSize: 12, weight: .medium)
-        daysLabel.textColor = .black
+        daysLabel.textColor = .YPBlack
         daysLabel.translatesAutoresizingMaskIntoConstraints = false
         
         completeButton.layer.cornerRadius = 17
@@ -85,9 +85,7 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
         cardView.backgroundColor = tracker.color
         emojiLabel.text = tracker.emoji
         nameLabel.text = tracker.name
-        
-        let s = formatDaysString(completedDays)
-        daysLabel.text = s
+        daysLabel.text = formatDaysString(completedDays)
         
         let imageName = isCompleted ? "checkmark" : "plus"
         completeButton.setImage(UIImage(systemName: imageName), for: .normal)
