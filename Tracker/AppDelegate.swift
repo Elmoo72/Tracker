@@ -1,5 +1,5 @@
 import UIKit
-import CoreData 
+import CoreData
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {

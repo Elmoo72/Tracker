@@ -54,8 +54,15 @@ extension TrackersCollectionView: UICollectionViewDataSource {
         let isCompleted = delegate?.trackersCollectionView(self, isCompleted: tracker) ?? false
         let count = delegate?.trackersCollectionView(self, completedCountFor: tracker) ?? 0
         
-        cell.delegate = self
         cell.configure(with: tracker, isCompleted: isCompleted, completedDays: count)
+        
+        // Добавляем обработку нажатия на кнопку плюса через замыкание
+        cell.onComplete = { [weak self] tracker, isCompleted in
+            guard let self = self,
+                  let currentIndexPath = collectionView.indexPath(for: cell) else { return }
+            self.delegate?.trackersCollectionView(self, didTapPlusFor: tracker, at: currentIndexPath)
+        }
+        
         return cell
     }
     
@@ -91,14 +98,5 @@ extension TrackersCollectionView: UICollectionViewDelegateFlowLayout {
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
         return CGSize(width: collectionView.frame.width, height: 19)
-    }
-}
-
-// MARK: - TrackerCellDelegate
-extension TrackersCollectionView: TrackerCellDelegate {
-    func didTapCompleteButton(of cell: TrackerCollectionViewCell) {
-        guard let indexPath = collectionView.indexPath(for: cell) else { return }
-        let tracker = categories[indexPath.section].trackers[indexPath.row]
-        delegate?.trackersCollectionView(self, didTapPlusFor: tracker, at: indexPath)
     }
 }

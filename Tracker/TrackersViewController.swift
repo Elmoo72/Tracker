@@ -25,15 +25,35 @@ final class TrackersViewController: UIViewController {
     private var completedTrackers: Set<TrackerRecord> = []
     private var currentDate: Date = Date()
     
-    // Константы для верстки сетки
     private let params = GeometricParams(cellCount: 2, leftInset: 16, rightInset: 16, cellSpacing: 9)
     
     // MARK: - UI Elements
+    private lazy var titleContainer: UIView = {
+        let view = UIView()
+        return view
+    }()
+    
+    private lazy var titleLabel: UILabel = {
+        let label = UILabel()
+        label.text = "Трекеры"
+        label.font = .systemFont(ofSize: 34, weight: .bold)
+        label.textColor = .YPBlack
+        return label
+    }()
+    
+    private lazy var searchBar: UISearchBar = {
+        let searchBar = UISearchBar()
+        searchBar.placeholder = "Поиск"
+        searchBar.delegate = self
+        searchBar.searchBarStyle = .minimal
+        searchBar.backgroundColor = .clear
+        return searchBar
+    }()
+    
     private lazy var collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         let cv = UICollectionView(frame: .zero, collectionViewLayout: layout)
         cv.backgroundColor = .YPWhite
-        // Регистрация ячейки и хедера
         cv.register(TrackerCollectionViewCell.self, forCellWithReuseIdentifier: "TrackerSectionCell")
         cv.register(TrackerSectionHeaderView.self,
                     forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
@@ -47,7 +67,6 @@ final class TrackersViewController: UIViewController {
         stack.alignment = .center
         stack.spacing = 8
         let img = UIImageView(image: UIImage(named: "1"))
-        img.translatesAutoresizingMaskIntoConstraints = false
         let label = UILabel()
         label.text = "Что будем отслеживать?"
         label.font = .systemFont(ofSize: 12, weight: .medium)
@@ -65,6 +84,7 @@ final class TrackersViewController: UIViewController {
         let picker = UIDatePicker()
         picker.datePickerMode = .date
         picker.preferredDatePickerStyle = .compact
+        picker.locale = Locale(identifier: "ru_RU")
         picker.addTarget(self, action: #selector(dateChanged), for: .valueChanged)
         return picker
     }()
@@ -80,13 +100,35 @@ final class TrackersViewController: UIViewController {
         view.backgroundColor = .YPWhite
         setupNavigationBar()
         
-        [collectionView, emptyStateStack].forEach {
+        view.addSubview(titleContainer)
+        titleContainer.addSubview(titleLabel)
+        titleContainer.addSubview(searchBar)
+        view.addSubview(collectionView)
+        view.addSubview(emptyStateStack)
+        
+        [titleContainer, titleLabel, searchBar, collectionView, emptyStateStack].forEach {
             $0.translatesAutoresizingMaskIntoConstraints = false
-            view.addSubview($0)
         }
         
         NSLayoutConstraint.activate([
-            collectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            // titleContainer теперь закреплен за safeArea и не перекрывает контент
+            titleContainer.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            titleContainer.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            titleContainer.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            titleContainer.bottomAnchor.constraint(equalTo: searchBar.bottomAnchor, constant: 10),
+            
+            // Заголовок "Трекеры"
+            titleLabel.topAnchor.constraint(equalTo: titleContainer.topAnchor, constant: 0),
+            titleLabel.leadingAnchor.constraint(equalTo: titleContainer.leadingAnchor, constant: 16),
+            
+            // Поиск под заголовком
+            searchBar.leadingAnchor.constraint(equalTo: titleContainer.leadingAnchor, constant: 8),
+            searchBar.trailingAnchor.constraint(equalTo: titleContainer.trailingAnchor, constant: -8),
+            searchBar.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 7),
+            searchBar.heightAnchor.constraint(equalToConstant: 36),
+            
+            // Коллекция под контейнером поиска
+            collectionView.topAnchor.constraint(equalTo: titleContainer.bottomAnchor),
             collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             collectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
@@ -100,12 +142,12 @@ final class TrackersViewController: UIViewController {
     }
     
     private func setupNavigationBar() {
-        navigationItem.title = "Трекеры"
-        navigationController?.navigationBar.prefersLargeTitles = true
-        
-        let addButton = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addTracker))
+        let addButton = UIButton(type: .custom)
+        addButton.setImage(UIImage(named: "plus") ?? UIImage(systemName: "plus"), for: .normal)
         addButton.tintColor = .YPBlack
-        navigationItem.leftBarButtonItem = addButton
+        addButton.addTarget(self, action: #selector(addTracker), for: .touchUpInside)
+        
+        navigationItem.leftBarButtonItem = UIBarButtonItem(customView: addButton)
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: datePicker)
     }
     
@@ -129,8 +171,14 @@ final class TrackersViewController: UIViewController {
         let filterWeekday = calendar.component(.weekday, from: currentDate)
         guard let day = WeekDay(rawValue: filterWeekday) else { return }
         
+        let searchText = searchBar.text?.lowercased() ?? ""
+        
         visibleCategories = categories.compactMap { category in
-            let filtered = category.trackers.filter { $0.schedule.contains(day) }
+            let filtered = category.trackers.filter { tracker in
+                let matchesDate = tracker.schedule.contains(day)
+                let matchesSearch = searchText.isEmpty || tracker.name.lowercased().contains(searchText)
+                return matchesDate && matchesSearch
+            }
             return filtered.isEmpty ? nil : TrackerCategory(title: category.title, trackers: filtered)
         }
         
@@ -142,6 +190,33 @@ final class TrackersViewController: UIViewController {
         let vc = CreateHabitViewController()
         vc.delegate = self
         present(UINavigationController(rootViewController: vc), animated: true)
+    }
+    
+    private func handleTrackerCompletion(tracker: Tracker, isCompleted: Bool, at indexPath: IndexPath) {
+        if isCompleted {
+            let newRecord = TrackerRecord(trackerId: tracker.id, date: currentDate)
+            completedTrackers.insert(newRecord)
+            try? trackerRecordStore.add(newRecord)
+        } else {
+            if let recordToRemove = completedTrackers.first(where: { record in
+                record.trackerId == tracker.id && Calendar.current.isDate(record.date, inSameDayAs: currentDate)
+            }) {
+                completedTrackers.remove(recordToRemove)
+                try? trackerRecordStore.remove(recordToRemove)
+            }
+        }
+        collectionView.reloadItems(at: [indexPath])
+    }
+}
+
+// MARK: - UISearchBarDelegate
+extension TrackersViewController: UISearchBarDelegate {
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        updateVisibleCategories()
+    }
+    
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        searchBar.resignFirstResponder()
     }
 }
 
@@ -168,10 +243,16 @@ extension TrackersViewController: UICollectionViewDataSource, UICollectionViewDe
         let completedDays = completedTrackers.filter { $0.trackerId == tracker.id }.count
         
         cell.configure(with: tracker, isCompleted: isCompletedToday, completedDays: completedDays)
+        
+        cell.onComplete = { [weak self] tracker, isCompleted in
+            guard let self = self,
+                  let currentIndexPath = self.collectionView.indexPath(for: cell) else { return }
+            self.handleTrackerCompletion(tracker: tracker, isCompleted: isCompleted, at: currentIndexPath)
+        }
+        
         return cell
     }
     
-    // Настройка хедера секции
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         guard let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: "header", for: indexPath) as? TrackerSectionHeaderView else {
             return UICollectionReusableView()
@@ -180,22 +261,17 @@ extension TrackersViewController: UICollectionViewDataSource, UICollectionViewDe
         return header
     }
     
-    // MARK: - Layout Configuration (ОТСТУПЫ 16пт ТУТ)
-    
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        // Вычисляем доступную ширину: экран - левый отступ - правый отступ - расстояние между ячейками
         let availableWidth = collectionView.frame.width - params.paddingWidth
         let cellWidth = availableWidth / CGFloat(params.cellCount)
         return CGSize(width: cellWidth, height: 148)
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
-        // Отступы самой секции от краев экрана
         return UIEdgeInsets(top: 12, left: params.leftInset, bottom: 16, right: params.rightInset)
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
-        // Расстояние между ячейками в одном ряду
         return params.cellSpacing
     }
     
@@ -207,16 +283,12 @@ extension TrackersViewController: UICollectionViewDataSource, UICollectionViewDe
 // MARK: - CreateHabitDelegate
 extension TrackersViewController: CreateHabitDelegate {
     func didCreateTracker(_ tracker: Tracker) {
-        do {
-            try trackerStore.addNewTracker(tracker, toCategoryName: "Важное")
-            fetchData()
-        } catch {
-            print("Ошибка сохранения: \(error)")
-        }
+        try? trackerStore.addNewTracker(tracker, toCategoryName: "Важное")
+        fetchData()
     }
 }
 
-// MARK: - Вспомогательная структура для верстки
+// MARK: - GeometricParams
 struct GeometricParams {
     let cellCount: Int
     let leftInset: CGFloat

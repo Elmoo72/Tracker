@@ -6,7 +6,13 @@ protocol TrackerCellDelegate: AnyObject {
 
 final class TrackerCollectionViewCell: UICollectionViewCell {
     static let identifier = "TrackerCell"
-    weak var delegate: TrackerCellDelegate?
+    
+    // MARK: - Public Properties
+    var onComplete: ((Tracker, Bool) -> Void)?
+    
+    // MARK: - Private Properties
+    private var tracker: Tracker?
+    private var isCompletedToday: Bool = false
     
     private let cardView = UIView()
     private let emojiLabel = UILabel()
@@ -70,7 +76,7 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
             daysLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 12),
             daysLabel.centerYAnchor.constraint(equalTo: completeButton.centerYAnchor),
             
-            completeButton.topAnchor.constraint(equalTo: cardView.bottomAnchor, constant: 8),
+            completeButton.topAnchor.constraint(equalTo: cardView.bottomAnchor, constant: 1),
             completeButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -12),
             completeButton.widthAnchor.constraint(equalToConstant: 34),
             completeButton.heightAnchor.constraint(equalToConstant: 34)
@@ -78,19 +84,33 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
     }
     
     @objc private func didTapComplete() {
-        delegate?.didTapCompleteButton(of: self)
+        guard let tracker = tracker else { return }
+        isCompletedToday.toggle()
+        updateCompleteButton()
+        onComplete?(tracker, isCompletedToday)
+    }
+    
+    private func updateCompleteButton() {
+        let imageName = isCompletedToday ? "checkmark" : "plus"
+        if isCompletedToday {
+            completeButton.setImage(UIImage(systemName: "checkmark"), for: .normal)
+        } else {
+            completeButton.setImage(UIImage(named: "plus"), for: .normal)
+        }
+        completeButton.alpha = isCompletedToday ? 0.3 : 1.0
     }
     
     func configure(with tracker: Tracker, isCompleted: Bool, completedDays: Int) {
+        self.tracker = tracker
+        self.isCompletedToday = isCompleted
+        
         cardView.backgroundColor = tracker.color
         emojiLabel.text = tracker.emoji
         nameLabel.text = tracker.name
         daysLabel.text = formatDaysString(completedDays)
         
-        let imageName = isCompleted ? "checkmark" : "plus"
-        completeButton.setImage(UIImage(systemName: imageName), for: .normal)
         completeButton.backgroundColor = tracker.color
-        completeButton.alpha = isCompleted ? 0.3 : 1.0
+        updateCompleteButton()
     }
     
     private func formatDaysString(_ count: Int) -> String {
@@ -99,5 +119,12 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
         if remainder10 == 1 && remainder100 != 11 { return "\(count) день" }
         if [2, 3, 4].contains(remainder10) && ![12, 13, 14].contains(remainder100) { return "\(count) дня" }
         return "\(count) дней"
+    }
+    
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        tracker = nil
+        isCompletedToday = false
+        onComplete = nil
     }
 }
