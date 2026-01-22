@@ -16,10 +16,10 @@ final class AddCategoryViewController: UIViewController {
     private lazy var textField: UITextField = {
         let textField = UITextField()
         textField.placeholder = "Введите название категории"
-        textField.backgroundColor = UIColor.secondarySystemBackground
+        textField.backgroundColor = UIColor(named: "YPBackground") ?? .systemGray6
         textField.layer.cornerRadius = 16
         textField.font = UIFont.systemFont(ofSize: 17)
-        textField.textColor = UIColor.label
+        textField.textColor = .black
         textField.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: 0))
         textField.leftViewMode = .always
         textField.rightView = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: 0))
@@ -34,7 +34,7 @@ final class AddCategoryViewController: UIViewController {
         button.setTitle("Готово", for: .normal)
         button.setTitleColor(.white, for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .medium)
-        button.backgroundColor = UIColor.systemGray
+        button.backgroundColor = UIColor(named: "YPGray") ?? .systemGray
         button.layer.cornerRadius = 16
         button.isEnabled = false
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -59,7 +59,7 @@ final class AddCategoryViewController: UIViewController {
     
     // MARK: - Private Methods
     private func setupUI() {
-        view.backgroundColor = UIColor.systemBackground
+        view.backgroundColor = .white
         
         view.addSubview(textField)
         view.addSubview(doneButton)
@@ -85,13 +85,13 @@ final class AddCategoryViewController: UIViewController {
             target: self,
             action: #selector(cancelButtonTapped)
         )
-        navigationItem.leftBarButtonItem?.tintColor = UIColor.systemRed
+        navigationItem.leftBarButtonItem?.tintColor = UIColor(named: "YPRed") ?? .systemRed
     }
     
     private func updateDoneButtonState() {
         let hasText = !(textField.text?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?? true)
         doneButton.isEnabled = hasText
-        doneButton.backgroundColor = hasText ? UIColor.label : UIColor.systemGray
+        doneButton.backgroundColor = hasText ? .black : (UIColor(named: "YPGray") ?? .systemGray)
     }
     
     @objc private func textFieldDidChange() {
