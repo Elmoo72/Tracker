@@ -1,4 +1,5 @@
 import UIKit
+import CoreData
 
 final class CategoryViewController: UIViewController {
     
@@ -47,11 +48,24 @@ final class CategoryViewController: UIViewController {
     }()
     
     // MARK: - Properties
-    private let viewModel = CategoryViewModel()
+    private let viewModel: CategoryViewModel
     private var selectedCategory: TrackerCategory?
     
     // MARK: - Callbacks
     var onCategorySelected: ((TrackerCategory) -> Void)?
+    
+    // MARK: - Initialization
+    init() {
+        let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
+        let trackerCategoryStore = TrackerCategoryStore(context: context)
+        let categoryModel = CategoryModel(trackerCategoryStore: trackerCategoryStore)
+        self.viewModel = CategoryViewModel(categoryModel: categoryModel)
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     // MARK: - Lifecycle
     override func viewDidLoad() {
@@ -107,7 +121,7 @@ final class CategoryViewController: UIViewController {
     }
     
     private func updateUI(with categories: [TrackerCategory]) {
-        let isEmpty = categories.isEmpty
+        let isEmpty = viewModel.isEmpty()
         emptyStateView.isHidden = !isEmpty
         tableView.isHidden = isEmpty
         
@@ -136,17 +150,19 @@ final class CategoryViewController: UIViewController {
 extension CategoryViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return viewModel.getCategoriesCount()
+        return viewModel.numberOfCategories()
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: CategoryTableViewCell.identifier, for: indexPath) as? CategoryTableViewCell,
-              let category = viewModel.getCategory(at: indexPath.row) else {
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: CategoryTableViewCell.identifier, for: indexPath) as? CategoryTableViewCell else {
             return UITableViewCell()
         }
         
-        let isSelected = selectedCategory?.title == category.title
-        cell.configure(with: category.title, isSelected: isSelected)
+        let isSelected = selectedCategory?.title == viewModel.categoryTitle(at: indexPath.row)
+        
+        if let cellData = viewModel.configureCellData(at: indexPath.row, isSelected: isSelected) {
+            cell.configure(with: cellData.title, isSelected: cellData.isSelected)
+        }
         
         return cell
     }
