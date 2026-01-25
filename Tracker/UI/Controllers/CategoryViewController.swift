@@ -8,7 +8,7 @@ final class CategoryViewController: UIViewController {
         let label = UILabel()
         label.text = "Категория"
         label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
-        label.textColor = .black
+        label.textColor = .YPBlack
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -16,7 +16,7 @@ final class CategoryViewController: UIViewController {
     
     private lazy var tableView: UITableView = {
         let tableView = UITableView()
-        tableView.backgroundColor = .white
+        tableView.backgroundColor = .YPWhite
         tableView.separatorStyle = .none
         tableView.delegate = self
         tableView.dataSource = self
@@ -28,9 +28,9 @@ final class CategoryViewController: UIViewController {
     private lazy var addCategoryButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("Добавить категорию", for: .normal)
-        button.setTitleColor(.white, for: .normal)
+        button.setTitleColor(.YPWhite, for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .medium)
-        button.backgroundColor = .black
+        button.backgroundColor = .YPBlack
         button.layer.cornerRadius = 16
         button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(addCategoryButtonTapped), for: .touchUpInside)
@@ -76,9 +76,17 @@ final class CategoryViewController: UIViewController {
         viewModel.loadCategories()
     }
     
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        
+        if traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) {
+            updateColorsForCurrentTheme()
+        }
+    }
+    
     // MARK: - Private Methods
     private func setupUI() {
-        view.backgroundColor = .white
+        view.backgroundColor = .YPWhite
         
         view.addSubview(tableView)
         view.addSubview(addCategoryButton)
@@ -98,6 +106,16 @@ final class CategoryViewController: UIViewController {
             emptyStateView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             emptyStateView.centerYAnchor.constraint(equalTo: view.centerYAnchor)
         ])
+        
+        updateColorsForCurrentTheme()
+    }
+    
+    private func updateColorsForCurrentTheme() {
+        view.backgroundColor = .YPWhite
+        tableView.backgroundColor = .YPWhite
+        titleLabel.textColor = .YPBlack
+        addCategoryButton.backgroundColor = .YPBlack
+        addCategoryButton.setTitleColor(.YPWhite, for: .normal)
     }
     
     private func bindViewModel() {

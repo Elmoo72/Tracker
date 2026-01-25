@@ -28,4 +28,17 @@ final class TrackerStore: NSObject {
         
         try context.save()
     }
+    
+    func deleteTracker(_ tracker: Tracker) throws {
+        let request: NSFetchRequest<TrackerCoreData> = TrackerCoreData.fetchRequest()
+        request.predicate = NSPredicate(format: "id == %@", tracker.id as CVarArg)
+        
+        let trackers = try context.fetch(request)
+        
+        for trackerCoreData in trackers {
+            context.delete(trackerCoreData)
+        }
+        
+        try context.save()
+    }
 }

@@ -14,10 +14,12 @@ final class TrackerCategoryStore: NSObject {
         let categoriesCoreData = try context.fetch(request)
         
         return categoriesCoreData.compactMap { (coreDataCategory) -> TrackerCategory? in
-            guard let title = coreDataCategory.title,
-                  let trackersRaw = coreDataCategory.trackers?.allObjects as? [TrackerCoreData] else {
+            guard let title = coreDataCategory.title else {
                 return nil
             }
+            
+            // Получаем трекеры, но не исключаем категории без трекеров
+            let trackersRaw = coreDataCategory.trackers?.allObjects as? [TrackerCoreData] ?? []
             
             let trackers: [Tracker] = trackersRaw.compactMap { (coreDataTracker) -> Tracker? in
                 guard let id = coreDataTracker.id,
@@ -29,7 +31,9 @@ final class TrackerCategoryStore: NSObject {
                 }
                 
                 // Используем твой инициализатор из extension UIColor
-                guard let color = UIColor(hex: colorHex) else { return nil }
+                guard let color = UIColor(hex: colorHex) else { 
+                    return nil 
+                }
                 
                 return Tracker(
                     id: id,
@@ -40,6 +44,7 @@ final class TrackerCategoryStore: NSObject {
                 )
             }
             
+            // Возвращаем категорию даже если в ней нет трекеров
             return TrackerCategory(title: title, trackers: trackers)
         }
     }
@@ -56,5 +61,25 @@ final class TrackerCategoryStore: NSObject {
             try context.save()
             return category
         }
+    }
+    
+    func saveContext() throws {
+        if context.hasChanges {
+            try context.save()
+        }
+    }
+    
+    // Временный метод для исправления неправильных названий категорий
+    func fixIncorrectCategoryNames() throws {
+        let request = TrackerCategoryCoreData.fetchRequest()
+        let categories = try context.fetch(request)
+        
+        for category in categories {
+            if category.title == "Вниательность" {
+                category.title = "Внимательность"
+            }
+        }
+        
+        try saveContext()
     }
 }

@@ -16,9 +16,17 @@ final class EmptyStateView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        
+        if traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) {
+            updateColorsForCurrentTheme()
+        }
+    }
+    
     private func setupUI() {
         label.font = .systemFont(ofSize: 12, weight: .medium)
-        label.textColor = .black
+        label.textColor = .YPBlack
         label.textAlignment = .center
         
         [imageView, label].forEach {
@@ -36,6 +44,12 @@ final class EmptyStateView: UIView {
             label.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
             label.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16)
         ])
+        
+        updateColorsForCurrentTheme()
+    }
+    
+    private func updateColorsForCurrentTheme() {
+        label.textColor = .YPBlack
     }
     
     func update(message: String, image: UIImage?) {

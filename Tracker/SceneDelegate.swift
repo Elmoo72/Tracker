@@ -16,7 +16,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window.makeKeyAndVisible()
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-            // Проверяем, показывался ли онбординг ранее
             let hasSeenOnboarding = UserDefaults.standard.bool(forKey: "hasSeenOnboarding")
             
             if hasSeenOnboarding {

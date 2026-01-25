@@ -20,6 +20,7 @@ final class CategoryViewModel {
     func loadCategories() {
         do {
             try categoryModel.createDefaultCategoriesIfNeeded()
+            try categoryModel.fixCategoryNames() // Исправляем неправильные названия
             categories = try categoryModel.fetchCategories()
             onCategoriesUpdated?(categories)
         } catch {

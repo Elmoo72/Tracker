@@ -44,7 +44,7 @@ final class CreateHabitViewController: UIViewController {
     private lazy var textField: UITextField = {
         let tf = UITextField()
         tf.placeholder = "Введите название трекера"
-        tf.textColor = .YPBlack // ЦВЕТ ПЕЧАТИ ТУТ
+        tf.textColor = .YPBlack
         tf.font = .systemFont(ofSize: 17)
         tf.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
         return tf
@@ -103,7 +103,7 @@ final class CreateHabitViewController: UIViewController {
     private lazy var createButton: UIButton = {
         let btn = UIButton()
         btn.setTitle("Создать", for: .normal)
-        btn.setTitleColor(.white, for: .normal) // Цвет текста ВСЕГДА белый
+        btn.setTitleColor(.YPWhite, for: .normal)
         btn.backgroundColor = .YPGray
         btn.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
         btn.layer.cornerRadius = 16
@@ -119,8 +119,16 @@ final class CreateHabitViewController: UIViewController {
         setupConstraints()
     }
     
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        
+        if traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) {
+            updateColorsForCurrentTheme()
+        }
+    }
+    
     private func setupUI() {
-        view.backgroundColor = .white
+        view.backgroundColor = .YPWhite
         title = "Новая привычка"
         
         view.addSubview(scrollView)
@@ -139,6 +147,33 @@ final class CreateHabitViewController: UIViewController {
         collectionView.delegate = self
         collectionView.dataSource = self
         textField.delegate = self
+        
+        updateColorsForCurrentTheme()
+    }
+    
+    private func updateColorsForCurrentTheme() {
+        view.backgroundColor = .YPWhite
+        textFieldContainer.backgroundColor = .YPBackground
+        textField.textColor = .YPBlack
+        tableViewContainer.backgroundColor = .YPBackground
+        tableView.backgroundColor = .clear
+        collectionView.backgroundColor = .clear
+        
+        // Принудительно обновляем layer цвета
+        textFieldContainer.layer.backgroundColor = UIColor.YPBackground.cgColor
+        tableViewContainer.layer.backgroundColor = UIColor.YPBackground.cgColor
+        
+        // Обновляем placeholder
+        textField.attributedPlaceholder = NSAttributedString(
+            string: "Введите название трекера",
+            attributes: [NSAttributedString.Key.foregroundColor: UIColor.YPGray]
+        )
+        
+        // Обновляем состояние кнопки создания
+        updateCreateButtonState()
+        
+        // Перезагружаем таблицу для обновления цветов ячеек
+        tableView.reloadData()
     }
 
     private func setupConstraints() {
@@ -254,7 +289,7 @@ extension CreateHabitViewController: UITableViewDelegate, UITableViewDataSource 
         cell.accessoryType = .disclosureIndicator
         cell.selectionStyle = .none
         
-        // ПРИНУДИТЕЛЬНО СТАВИМ ЦВЕТА
+        // Устанавливаем цвета для темной темы
         cell.textLabel?.textColor = .YPBlack
         cell.textLabel?.font = .systemFont(ofSize: 17)
         
@@ -267,8 +302,14 @@ extension CreateHabitViewController: UITableViewDelegate, UITableViewDataSource 
         } else {
             cell.textLabel?.text = "Расписание"
             if !selectedWeekdays.isEmpty {
-                let days = Array(selectedWeekdays).sorted { $0.rawValue < $1.rawValue }
-                cell.detailTextLabel?.text = days.count == 7 ? "Каждый день" : days.map { $0.shortTitle }.joined(separator: ", ")
+                let sortedDays = selectedWeekdays.sorted { day1, day2 in
+                    guard let index1 = WeekDay.weekOrder.firstIndex(of: day1),
+                          let index2 = WeekDay.weekOrder.firstIndex(of: day2) else {
+                        return day1.rawValue < day2.rawValue
+                    }
+                    return index1 < index2
+                }
+                cell.detailTextLabel?.text = sortedDays.count == 7 ? "Каждый день" : sortedDays.map { $0.shortTitle }.joined(separator: ", ")
             }
         }
         return cell

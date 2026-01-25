@@ -27,6 +27,14 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
     
     required init?(coder: NSCoder) { fatalError() }
     
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        
+        if traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) {
+            updateColorsForCurrentTheme()
+        }
+    }
+    
     private func setupUI() {
         cardView.layer.cornerRadius = 16
         cardView.translatesAutoresizingMaskIntoConstraints = false
@@ -107,18 +115,16 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
         cardView.backgroundColor = tracker.color
         emojiLabel.text = tracker.emoji
         nameLabel.text = tracker.name
-        daysLabel.text = formatDaysString(completedDays)
+        daysLabel.text = completedDays.daysString()
         
         completeButton.backgroundColor = tracker.color
         updateCompleteButton()
+        updateColorsForCurrentTheme()
     }
     
-    private func formatDaysString(_ count: Int) -> String {
-        let remainder10 = count % 10
-        let remainder100 = count % 100
-        if remainder10 == 1 && remainder100 != 11 { return "\(count) день" }
-        if [2, 3, 4].contains(remainder10) && ![12, 13, 14].contains(remainder100) { return "\(count) дня" }
-        return "\(count) дней"
+    private func updateColorsForCurrentTheme() {
+        // Обновляем цвет текста дней в зависимости от темы
+        daysLabel.textColor = .YPBlack
     }
     
     override func prepareForReuse() {

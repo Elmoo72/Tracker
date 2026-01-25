@@ -5,6 +5,7 @@ protocol CategoryModelProtocol {
     func fetchCategories() throws -> [TrackerCategory]
     func addCategory(title: String) throws
     func createDefaultCategoriesIfNeeded() throws
+    func fixCategoryNames() throws
 }
 
 final class CategoryModel: CategoryModelProtocol {
@@ -42,6 +43,14 @@ final class CategoryModel: CategoryModelProtocol {
             for title in defaultCategoryTitles {
                 try addCategory(title: title)
             }
+            
+            // Принудительно сохраняем контекст
+            try trackerCategoryStore.saveContext()
         }
+    }
+    
+    // Временный метод для исправления категорий с ошибками
+    func fixCategoryNames() throws {
+        try trackerCategoryStore.fixIncorrectCategoryNames()
     }
 }

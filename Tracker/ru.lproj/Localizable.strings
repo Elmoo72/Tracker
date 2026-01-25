@@ -1,0 +1,38 @@
+/* 
+  Localizable.strings
+  Tracker
+
+  Created by Kiro on 25/1/2026.
+  
+*/
+
+// Main screen
+"trackers" = "Трекеры";
+"filters" = "Фильтры";
+
+// Tab bar
+"trackers_tab" = "Трекеры";
+"statistics_tab" = "Статистика";
+
+// Days count
+"day" = "день";
+"days_2_4" = "дня";
+"days_many" = "дней";
+
+// Context menu
+"edit" = "Редактировать";
+"delete" = "Удалить";
+"pin" = "Закрепить";
+"unpin" = "Открепить";
+
+// Pinned section
+"pinned" = "Закрепленные";
+
+// Statistics
+"completed_trackers" = "Трекеров завершено";
+"statistics_empty_message" = "Анализировать пока нечего";
+
+// Alerts
+"delete_tracker_title" = "Удаление трекера";
+"delete_tracker_message" = "Уверены что хотите удалить трекер?";
+"cancel" = "Отмена";

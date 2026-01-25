@@ -1,4 +1,5 @@
 import UIKit
+
 // Заголовок секции
 final class HeaderView: UICollectionReusableView {
     let titleLabel = UILabel()
@@ -6,6 +7,7 @@ final class HeaderView: UICollectionReusableView {
     override init(frame: CGRect) {
         super.init(frame: frame)
         titleLabel.font = .systemFont(ofSize: 19, weight: .bold)
+        titleLabel.textColor = .YPBlack
         addSubview(titleLabel)
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
@@ -16,4 +18,12 @@ final class HeaderView: UICollectionReusableView {
     }
     
     required init?(coder: NSCoder) { fatalError() }
+    
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        
+        if traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) {
+            titleLabel.textColor = .YPBlack
+        }
+    }
 }

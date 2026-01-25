@@ -1,10 +1,17 @@
 import UIKit
 import CoreData
+import AppMetricaCore // AppMetrica подключена через SPM
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+        
+        // Инициализация AppMetrica
+        if let configuration = AppMetricaConfiguration(apiKey: "23cabdc1-3117-4b92-81a3-94c9c9e4e8b0") {
+            AppMetrica.activate(with: configuration)
+        }
+        
         return true
     }
 

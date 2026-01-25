@@ -26,6 +26,9 @@ enum WeekDay: Int, CaseIterable {
         case .sunday: return "Вс"
         }
     }
+    
+    // Порядок дней недели, начиная с понедельника
+    static let weekOrder: [WeekDay] = [.monday, .tuesday, .wednesday, .thursday, .friday, .saturday, .sunday]
 
     static func from(_ string: String) -> [WeekDay] {
         let components = string.components(separatedBy: ",")

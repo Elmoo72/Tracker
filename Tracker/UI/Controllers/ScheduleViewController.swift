@@ -5,7 +5,7 @@ final class ScheduleViewController: UIViewController {
     // MARK: - Properties
     var onScheduleSelected: ((Set<WeekDay>) -> Void)?
     private var selectedDays: Set<WeekDay> = []
-    private let days = WeekDay.allCases
+    private let days = WeekDay.weekOrder
     
     // MARK: - UI Elements
     private lazy var tableView: UITableView = {
@@ -37,6 +37,14 @@ final class ScheduleViewController: UIViewController {
         setupConstraints()
     }
     
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        
+        if traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) {
+            updateColorsForCurrentTheme()
+        }
+    }
+    
     private func setupUI() {
         view.backgroundColor = .YPWhite
         navigationItem.title = "Расписание"
@@ -46,6 +54,18 @@ final class ScheduleViewController: UIViewController {
         
         tableView.dataSource = self
         tableView.delegate = self
+        
+        updateColorsForCurrentTheme()
+    }
+    
+    private func updateColorsForCurrentTheme() {
+        view.backgroundColor = .YPWhite
+        tableView.backgroundColor = .YPBackground
+        doneButton.backgroundColor = .YPBlack
+        doneButton.setTitleColor(.YPWhite, for: .normal)
+        
+        // Принудительно обновляем layer цвета
+        tableView.layer.backgroundColor = UIColor.YPBackground.cgColor
     }
     
     private func setupConstraints() {
@@ -96,6 +116,7 @@ extension ScheduleViewController: UITableViewDataSource, UITableViewDelegate {
         let day = days[indexPath.row]
         cell.textLabel?.text = day.localizedName
         cell.textLabel?.font = .systemFont(ofSize: 17)
+        cell.textLabel?.textColor = .YPBlack
         
         let switchView = UISwitch()
         switchView.onTintColor = .YPBlue

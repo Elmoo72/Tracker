@@ -8,7 +8,7 @@ final class CategoryTableViewCell: UITableViewCell {
     // MARK: - UI Elements
     private lazy var containerView: UIView = {
         let view = UIView()
-        view.backgroundColor = UIColor(named: "YPBackground") ?? .systemGray6
+        view.backgroundColor = .YPBackground
         view.layer.cornerRadius = 16
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
@@ -17,7 +17,7 @@ final class CategoryTableViewCell: UITableViewCell {
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 17, weight: .regular)
-        label.textColor = .black
+        label.textColor = .YPBlack
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -25,7 +25,7 @@ final class CategoryTableViewCell: UITableViewCell {
     private lazy var checkmarkImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.image = UIImage(systemName: "checkmark")
-        imageView.tintColor = UIColor(named: "YPBlue") ?? .systemBlue
+        imageView.tintColor = .YPBlue
         imageView.isHidden = true
         imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
@@ -39,6 +39,14 @@ final class CategoryTableViewCell: UITableViewCell {
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        
+        if traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) {
+            updateColorsForCurrentTheme()
+        }
     }
     
     // MARK: - Private Methods
@@ -65,6 +73,17 @@ final class CategoryTableViewCell: UITableViewCell {
             checkmarkImageView.widthAnchor.constraint(equalToConstant: 24),
             checkmarkImageView.heightAnchor.constraint(equalToConstant: 24)
         ])
+        
+        updateColorsForCurrentTheme()
+    }
+    
+    private func updateColorsForCurrentTheme() {
+        containerView.backgroundColor = .YPBackground
+        titleLabel.textColor = .YPBlack
+        checkmarkImageView.tintColor = .YPBlue
+        
+        // Принудительно обновляем layer цвета
+        containerView.layer.backgroundColor = UIColor.YPBackground.cgColor
     }
     
     // MARK: - Public Methods

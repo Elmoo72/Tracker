@@ -30,6 +30,9 @@ final class TrackerRecordStore: NSObject {
         recordCoreData.id = record.trackerId
         recordCoreData.date = record.date
         try context.save()
+        
+        // Уведомляем об изменении статистики
+        NotificationCenter.default.post(name: NSNotification.Name("TrackerRecordChanged"), object: nil)
     }
     
     func remove(_ record: TrackerRecord) throws {
@@ -41,6 +44,9 @@ final class TrackerRecordStore: NSObject {
         if let result = try context.fetch(request).first {
             context.delete(result)
             try context.save()
+            
+            // Уведомляем об изменении статистики
+            NotificationCenter.default.post(name: NSNotification.Name("TrackerRecordChanged"), object: nil)
         }
     }
 }

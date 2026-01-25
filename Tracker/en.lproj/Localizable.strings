@@ -1,0 +1,26 @@
+// Main screen
+"trackers" = "Trackers";
+"filters" = "Filters";
+
+// Tab bar
+"trackers_tab" = "Trackers";
+"statistics_tab" = "Statistics";
+
+// Days count
+"day" = "day";
+"days_2_4" = "days";
+"days_many" = "days";
+
+// Context menu
+"edit" = "Edit";
+"delete" = "Delete";
+"pin" = "Pin";
+"unpin" = "Unpin";
+
+// Pinned section
+"pinned" = "Pinned";
+
+// Alerts
+"delete_tracker_title" = "Delete tracker";
+"delete_tracker_message" = "Are you sure you want to delete the tracker?";
+"cancel" = "Cancel";

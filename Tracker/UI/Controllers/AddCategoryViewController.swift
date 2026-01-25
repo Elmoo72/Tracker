@@ -7,7 +7,7 @@ final class AddCategoryViewController: UIViewController {
         let label = UILabel()
         label.text = "Новая категория"
         label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
-        label.textColor = .black
+        label.textColor = .YPBlack
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -16,10 +16,10 @@ final class AddCategoryViewController: UIViewController {
     private lazy var textField: UITextField = {
         let textField = UITextField()
         textField.placeholder = "Введите название категории"
-        textField.backgroundColor = UIColor(named: "YPBackground") ?? .systemGray6
+        textField.backgroundColor = .YPBackground
         textField.layer.cornerRadius = 16
         textField.font = UIFont.systemFont(ofSize: 17)
-        textField.textColor = .black
+        textField.textColor = .YPBlack
         textField.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: 0))
         textField.leftViewMode = .always
         textField.rightView = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: 0))
@@ -32,9 +32,9 @@ final class AddCategoryViewController: UIViewController {
     private lazy var doneButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("Готово", for: .normal)
-        button.setTitleColor(.white, for: .normal)
+        button.setTitleColor(.YPWhite, for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .medium)
-        button.backgroundColor = UIColor(named: "YPGray") ?? .systemGray
+        button.backgroundColor = .YPGray
         button.layer.cornerRadius = 16
         button.isEnabled = false
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -57,9 +57,17 @@ final class AddCategoryViewController: UIViewController {
         textField.becomeFirstResponder()
     }
     
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        
+        if traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) {
+            updateColorsForCurrentTheme()
+        }
+    }
+    
     // MARK: - Private Methods
     private func setupUI() {
-        view.backgroundColor = .white
+        view.backgroundColor = .YPWhite
         
         view.addSubview(textField)
         view.addSubview(doneButton)
@@ -75,6 +83,8 @@ final class AddCategoryViewController: UIViewController {
             doneButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16),
             doneButton.heightAnchor.constraint(equalToConstant: 60)
         ])
+        
+        updateColorsForCurrentTheme()
     }
     
     private func setupNavigationBar() {
@@ -85,13 +95,31 @@ final class AddCategoryViewController: UIViewController {
             target: self,
             action: #selector(cancelButtonTapped)
         )
-        navigationItem.leftBarButtonItem?.tintColor = UIColor(named: "YPRed") ?? .systemRed
+        navigationItem.leftBarButtonItem?.tintColor = .YPRed
+    }
+    
+    private func updateColorsForCurrentTheme() {
+        view.backgroundColor = .YPWhite
+        textField.backgroundColor = .YPBackground
+        textField.textColor = .YPBlack
+        titleLabel.textColor = .YPBlack
+        
+        // Принудительно обновляем layer цвета
+        textField.layer.backgroundColor = UIColor.YPBackground.cgColor
+        
+        // Обновляем placeholder
+        textField.attributedPlaceholder = NSAttributedString(
+            string: "Введите название категории",
+            attributes: [NSAttributedString.Key.foregroundColor: UIColor.YPGray]
+        )
+        
+        updateDoneButtonState()
     }
     
     private func updateDoneButtonState() {
         let hasText = !(textField.text?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?? true)
         doneButton.isEnabled = hasText
-        doneButton.backgroundColor = hasText ? .black : (UIColor(named: "YPGray") ?? .systemGray)
+        doneButton.backgroundColor = hasText ? .YPBlack : .YPGray
     }
     
     @objc private func textFieldDidChange() {
