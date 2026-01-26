@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		27A01D1D2F27AE0800F1F959 /* AppMetricaCore in Frameworks */ = {isa = PBXBuildFile; productRef = 27A01D1C2F27AE0800F1F959 /* AppMetricaCore */; };
 		27C24AC92F1B937A00C7E2B1 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 27C24AC82F1B937000C7E2B1 /* README.md */; };
 /* End PBXBuildFile section */
 
@@ -70,6 +71,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				27A01D1D2F27AE0800F1F959 /* AppMetricaCore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -97,6 +99,7 @@
 				2780F2D82F1AA054003745EA /* Tracker */,
 				2780F2EF2F1AA055003745EA /* TrackerTests */,
 				2780F2F92F1AA055003745EA /* TrackerUITests */,
+				27A01D1B2F27AE0800F1F959 /* Frameworks */,
 				2780F2D72F1AA054003745EA /* Products */,
 			);
 			sourceTree = "<group>";
@@ -109,6 +112,13 @@
 				2780F2F62F1AA055003745EA /* TrackerUITests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		27A01D1B2F27AE0800F1F959 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -131,6 +141,7 @@
 			);
 			name = Tracker;
 			packageProductDependencies = (
+				27A01D1C2F27AE0800F1F959 /* AppMetricaCore */,
 			);
 			productName = Tracker;
 			productReference = 2780F2D62F1AA054003745EA /* Tracker.app */;
@@ -615,6 +626,14 @@
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		27A01D1C2F27AE0800F1F959 /* AppMetricaCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 27A01D1A2F269E4A00F1F959 /* XCRemoteSwiftPackageReference "appmetrica-sdk-ios" */;
+			productName = AppMetricaCore;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 2780F2CE2F1AA054003745EA /* Project object */;
 }
