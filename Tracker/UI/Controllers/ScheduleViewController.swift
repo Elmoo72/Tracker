@@ -66,6 +66,9 @@ final class ScheduleViewController: UIViewController {
         
         // Принудительно обновляем layer цвета
         tableView.layer.backgroundColor = UIColor.YPBackground.cgColor
+        
+        // Перезагружаем таблицу для обновления цветов ячеек
+        tableView.reloadData()
     }
     
     private func setupConstraints() {
@@ -110,7 +113,7 @@ extension ScheduleViewController: UITableViewDataSource, UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "WeekdayCell", for: indexPath)
-        cell.backgroundColor = .clear
+        cell.backgroundColor = .YPBackground
         cell.selectionStyle = .none
         
         let day = days[indexPath.row]

@@ -1,14 +1,18 @@
 import UIKit
+import CoreData
 
 // MARK: - Delegate Protocol
 protocol CreateHabitDelegate: AnyObject {
     func didCreateTracker(_ tracker: Tracker, inCategory category: TrackerCategory)
+    func didEditTracker(_ tracker: Tracker, inCategory category: TrackerCategory)
 }
 
 final class CreateHabitViewController: UIViewController {
     
     // MARK: - Public Properties
     weak var delegate: CreateHabitDelegate?
+    var tracker: Tracker?
+    private var isEditingMode: Bool { tracker != nil }
     
     // MARK: - Private Properties
     private let emojis = ["🙂", "😻", "🌺", "🐶", "❤️", "😱", "😇", "😡", "🥶", "🤔", "🙌", "🍔", "🥦", "🏓", "🥇", "🎸", "🏝", "✨"]
@@ -46,6 +50,7 @@ final class CreateHabitViewController: UIViewController {
         tf.placeholder = "Введите название трекера"
         tf.textColor = .YPBlack
         tf.font = .systemFont(ofSize: 17)
+        tf.backgroundColor = .clear
         tf.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
         return tf
     }()
@@ -117,6 +122,10 @@ final class CreateHabitViewController: UIViewController {
         super.viewDidLoad()
         setupUI()
         setupConstraints()
+        
+        if isEditingMode {
+            configureForEditing()
+        }
     }
     
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
@@ -129,11 +138,13 @@ final class CreateHabitViewController: UIViewController {
     
     private func setupUI() {
         view.backgroundColor = .YPWhite
-        title = "Новая привычка"
+        title = isEditingMode ? "Редактирование привычки" : "Новая привычка"
         
         view.addSubview(scrollView)
         view.addSubview(cancelButton)
         view.addSubview(createButton)
+        
+        createButton.setTitle(isEditingMode ? "Сохранить" : "Создать", for: .normal)
         scrollView.addSubview(contentView)
         
         [textFieldContainer, limitLabel, tableViewContainer, collectionView].forEach {
@@ -154,6 +165,7 @@ final class CreateHabitViewController: UIViewController {
     private func updateColorsForCurrentTheme() {
         view.backgroundColor = .YPWhite
         textFieldContainer.backgroundColor = .YPBackground
+        textField.backgroundColor = .clear
         textField.textColor = .YPBlack
         tableViewContainer.backgroundColor = .YPBackground
         tableView.backgroundColor = .clear
@@ -265,17 +277,63 @@ final class CreateHabitViewController: UIViewController {
               let color = selectedColor,
               let category = selectedCategory else { return }
         
-        let newTracker = Tracker(
-            id: UUID(),
-            name: name,
-            color: color,
-            emoji: emoji,
-            schedule: Array(selectedWeekdays)
-        )
+        if isEditingMode {
+            // Режим редактирования - сохраняем изменения
+            guard let existingTracker = tracker else { return }
+            let updatedTracker = Tracker(
+                id: existingTracker.id, // Сохраняем тот же ID
+                name: name,
+                color: color,
+                emoji: emoji,
+                schedule: Array(selectedWeekdays)
+            )
+            delegate?.didEditTracker(updatedTracker, inCategory: category)
+        } else {
+            // Режим создания - создаем новый трекер
+            let newTracker = Tracker(
+                id: UUID(),
+                name: name,
+                color: color,
+                emoji: emoji,
+                schedule: Array(selectedWeekdays)
+            )
+            delegate?.didCreateTracker(newTracker, inCategory: category)
+        }
         
-        delegate?.didCreateTracker(newTracker, inCategory: category)
         print("Делегат вызван, закрываем экран")
         dismiss(animated: true)
+    }
+    
+    private func configureForEditing() {
+        guard let tracker = tracker else { return }
+        
+        // Заполняем поля данными трекера
+        textField.text = tracker.name
+        selectedEmoji = tracker.emoji
+        selectedColor = tracker.color
+        selectedWeekdays = Set(tracker.schedule)
+        
+        // Находим категорию трекера
+        do {
+            let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
+            let categoryStore = TrackerCategoryStore(context: context)
+            let categories = try categoryStore.fetchCategories()
+            
+            for category in categories {
+                if category.trackers.contains(where: { $0.id == tracker.id }) {
+                    selectedCategory = category
+                    categorySubtitle = category.title
+                    break
+                }
+            }
+        } catch {
+            print("Ошибка загрузки категории для редактирования: \(error)")
+        }
+        
+        // Обновляем UI
+        updateCreateButtonState()
+        collectionView.reloadData()
+        tableView.reloadData()
     }
 }
 
@@ -285,7 +343,7 @@ extension CreateHabitViewController: UITableViewDelegate, UITableViewDataSource 
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = UITableViewCell(style: .subtitle, reuseIdentifier: "cell")
-        cell.backgroundColor = .clear
+        cell.backgroundColor = .YPBackground
         cell.accessoryType = .disclosureIndicator
         cell.selectionStyle = .none
         
@@ -311,6 +369,8 @@ extension CreateHabitViewController: UITableViewDelegate, UITableViewDataSource 
                 }
                 cell.detailTextLabel?.text = sortedDays.count == 7 ? "Каждый день" : sortedDays.map { $0.shortTitle }.joined(separator: ", ")
             }
+            // Убираем разделительную линию у последней ячейки (Расписание)
+            cell.separatorInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: tableView.bounds.width)
         }
         return cell
     }

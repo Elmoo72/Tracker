@@ -588,14 +588,10 @@ extension TrackersViewController: UICollectionViewDataSource, UICollectionViewDe
     
     private func editTracker(_ tracker: Tracker) {
         analyticsReporter.report(event: .click(screen: .main, item: .edit))
-        // TODO: Implement edit functionality
-        let alert = UIAlertController(
-            title: "edit".localized,
-            message: "Функция редактирования будет реализована позже",
-            preferredStyle: .alert
-        )
-        alert.addAction(UIAlertAction(title: "OK", style: .default))
-        present(alert, animated: true)
+        let vc = CreateHabitViewController()
+        vc.tracker = tracker
+        vc.delegate = self
+        present(UINavigationController(rootViewController: vc), animated: true)
     }
     
     private func deleteTracker(_ tracker: Tracker) {
@@ -638,6 +634,15 @@ extension TrackersViewController: CreateHabitDelegate {
             fetchData()
         } catch {
             print("Ошибка добавления трекера: \(error)")
+        }
+    }
+    
+    func didEditTracker(_ tracker: Tracker, inCategory category: TrackerCategory) {
+        do {
+            try trackerStore.updateTracker(tracker, inCategoryName: category.title)
+            fetchData()
+        } catch {
+            print("Ошибка обновления трекера: \(error)")
         }
     }
 }

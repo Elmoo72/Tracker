@@ -16,8 +16,10 @@ final class CategoryViewController: UIViewController {
     
     private lazy var tableView: UITableView = {
         let tableView = UITableView()
-        tableView.backgroundColor = .YPWhite
-        tableView.separatorStyle = .none
+        tableView.backgroundColor = .YPBackground
+        tableView.layer.cornerRadius = 16
+        tableView.separatorStyle = .singleLine
+        tableView.separatorInset = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
         tableView.delegate = self
         tableView.dataSource = self
         tableView.register(CategoryTableViewCell.self, forCellReuseIdentifier: CategoryTableViewCell.identifier)
@@ -71,6 +73,7 @@ final class CategoryViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         title = "Категория"
+        navigationItem.hidesBackButton = true
         setupUI()
         bindViewModel()
         viewModel.loadCategories()
@@ -96,7 +99,6 @@ final class CategoryViewController: UIViewController {
             tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 24),
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-            tableView.bottomAnchor.constraint(equalTo: addCategoryButton.topAnchor, constant: -16),
             
             addCategoryButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             addCategoryButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
@@ -112,10 +114,13 @@ final class CategoryViewController: UIViewController {
     
     private func updateColorsForCurrentTheme() {
         view.backgroundColor = .YPWhite
-        tableView.backgroundColor = .YPWhite
+        tableView.backgroundColor = .YPBackground
         titleLabel.textColor = .YPBlack
         addCategoryButton.backgroundColor = .YPBlack
         addCategoryButton.setTitleColor(.YPWhite, for: .normal)
+        
+        // Принудительно обновляем layer цвета
+        tableView.layer.backgroundColor = UIColor.YPBackground.cgColor
     }
     
     private func bindViewModel() {
@@ -144,6 +149,20 @@ final class CategoryViewController: UIViewController {
         tableView.isHidden = isEmpty
         
         if !isEmpty {
+            // Обновляем высоту таблицы в зависимости от количества категорий
+            let numberOfCategories = viewModel.numberOfCategories()
+            let tableHeight = CGFloat(numberOfCategories * 75)
+            
+            // Удаляем старые constraints для высоты таблицы
+            tableView.constraints.forEach { constraint in
+                if constraint.firstAttribute == .height {
+                    constraint.isActive = false
+                }
+            }
+            
+            // Устанавливаем новую высоту
+            tableView.heightAnchor.constraint(equalToConstant: tableHeight).isActive = true
+            
             tableView.reloadData()
         }
     }
@@ -180,6 +199,13 @@ extension CategoryViewController: UITableViewDataSource {
         
         if let cellData = viewModel.configureCellData(at: indexPath.row, isSelected: isSelected) {
             cell.configure(with: cellData.title, isSelected: cellData.isSelected)
+        }
+        
+        // Скрываем разделительную линию у последней ячейки
+        if indexPath.row == viewModel.numberOfCategories() - 1 {
+            cell.separatorInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: tableView.bounds.width)
+        } else {
+            cell.separatorInset = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
         }
         
         return cell

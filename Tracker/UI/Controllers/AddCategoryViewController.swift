@@ -89,13 +89,6 @@ final class AddCategoryViewController: UIViewController {
     
     private func setupNavigationBar() {
         title = "Новая категория"
-        navigationItem.leftBarButtonItem = UIBarButtonItem(
-            title: "Отменить",
-            style: .plain,
-            target: self,
-            action: #selector(cancelButtonTapped)
-        )
-        navigationItem.leftBarButtonItem?.tintColor = .YPRed
     }
     
     private func updateColorsForCurrentTheme() {
@@ -131,10 +124,6 @@ final class AddCategoryViewController: UIViewController {
               !categoryTitle.isEmpty else { return }
         
         onCategoryAdded?(categoryTitle)
-        navigationController?.popViewController(animated: true)
-    }
-    
-    @objc private func cancelButtonTapped() {
         navigationController?.popViewController(animated: true)
     }
 }

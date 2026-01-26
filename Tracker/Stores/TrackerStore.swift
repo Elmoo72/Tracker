@@ -29,6 +29,25 @@ final class TrackerStore: NSObject {
         try context.save()
     }
     
+    func updateTracker(_ tracker: Tracker, inCategoryName categoryName: String) throws {
+        let request: NSFetchRequest<TrackerCoreData> = TrackerCoreData.fetchRequest()
+        request.predicate = NSPredicate(format: "id == %@", tracker.id as CVarArg)
+        
+        guard let trackerCoreData = try context.fetch(request).first else {
+            throw NSError(domain: "TrackerStore", code: 404, userInfo: [NSLocalizedDescriptionKey: "Tracker not found"])
+        }
+        
+        let categoryCoreData = try trackerCategoryStore.categoryCoreData(with: categoryName)
+        
+        trackerCoreData.name = tracker.name
+        trackerCoreData.emoji = tracker.emoji
+        trackerCoreData.color = tracker.color.hexString
+        trackerCoreData.schedule = WeekDay.encode(tracker.schedule) as NSObject
+        trackerCoreData.category = categoryCoreData
+        
+        try context.save()
+    }
+    
     func deleteTracker(_ tracker: Tracker) throws {
         let request: NSFetchRequest<TrackerCoreData> = TrackerCoreData.fetchRequest()
         request.predicate = NSPredicate(format: "id == %@", tracker.id as CVarArg)

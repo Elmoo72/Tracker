@@ -1,14 +1,14 @@
 import UIKit
 
 extension UIColor {
-    static var YPBlack: UIColor { UIColor(named: "YP Black") ?? .label }
-    static var YPWhite: UIColor { UIColor(named: "YP White") ?? .systemBackground }
-    static var YPBlue: UIColor { UIColor(named: "YP Blue") ?? .systemBlue }
-    static var YPRed: UIColor { UIColor(named: "YP Red") ?? .systemRed }
-    static var YPGreen: UIColor { UIColor(named: "YP Green") ?? .systemGreen }
-    static var YPBackground: UIColor { UIColor(named: "YP Background") ?? .systemBackground }
-    static var YPGray: UIColor { UIColor(named: "YP Gray") ?? .systemGray }
-    static var YPLightGray: UIColor { UIColor(named: "YP Light Gray") ?? .systemGray4 }
+    static var YPBlack: UIColor { UIColor(named: "YPBlack") ?? .label }
+    static var YPWhite: UIColor { UIColor(named: "YPWhite") ?? .systemBackground }
+    static var YPBlue: UIColor { UIColor(named: "YPBlue") ?? .systemBlue }
+    static var YPRed: UIColor { UIColor(named: "YPRed") ?? .systemRed }
+    static var YPGreen: UIColor { UIColor(named: "YPGreen") ?? .systemGreen }
+    static var YPBackground: UIColor { UIColor(named: "YPBackground") ?? .systemBackground }
+    static var YPGray: UIColor { UIColor(named: "YPGray") ?? .systemGray }
+    static var YPLightGray: UIColor { UIColor(named: "LightGrayStatic") ?? .systemGray4 }
     
     static var adaptiveBackground: UIColor {
         return UIColor { (traits: UITraitCollection) -> UIColor in

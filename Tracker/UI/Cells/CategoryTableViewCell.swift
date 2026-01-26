@@ -6,14 +6,6 @@ final class CategoryTableViewCell: UITableViewCell {
     static let identifier = "CategoryTableViewCell"
     
     // MARK: - UI Elements
-    private lazy var containerView: UIView = {
-        let view = UIView()
-        view.backgroundColor = .YPBackground
-        view.layer.cornerRadius = 16
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
-    }()
-    
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 17, weight: .regular)
@@ -51,25 +43,19 @@ final class CategoryTableViewCell: UITableViewCell {
     
     // MARK: - Private Methods
     private func setupUI() {
-        backgroundColor = .clear
+        backgroundColor = .YPBackground
         selectionStyle = .none
         
-        contentView.addSubview(containerView)
-        containerView.addSubview(titleLabel)
-        containerView.addSubview(checkmarkImageView)
+        contentView.addSubview(titleLabel)
+        contentView.addSubview(checkmarkImageView)
         
         NSLayoutConstraint.activate([
-            containerView.topAnchor.constraint(equalTo: contentView.topAnchor),
-            containerView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-            containerView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            containerView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -1),
-            
-            titleLabel.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 16),
-            titleLabel.centerYAnchor.constraint(equalTo: containerView.centerYAnchor),
+            titleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            titleLabel.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
             titleLabel.trailingAnchor.constraint(equalTo: checkmarkImageView.leadingAnchor, constant: -16),
             
-            checkmarkImageView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -16),
-            checkmarkImageView.centerYAnchor.constraint(equalTo: containerView.centerYAnchor),
+            checkmarkImageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+            checkmarkImageView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
             checkmarkImageView.widthAnchor.constraint(equalToConstant: 24),
             checkmarkImageView.heightAnchor.constraint(equalToConstant: 24)
         ])
@@ -78,12 +64,9 @@ final class CategoryTableViewCell: UITableViewCell {
     }
     
     private func updateColorsForCurrentTheme() {
-        containerView.backgroundColor = .YPBackground
+        backgroundColor = .YPBackground
         titleLabel.textColor = .YPBlack
         checkmarkImageView.tintColor = .YPBlue
-        
-        // Принудительно обновляем layer цвета
-        containerView.layer.backgroundColor = UIColor.YPBackground.cgColor
     }
     
     // MARK: - Public Methods
